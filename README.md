@@ -37,7 +37,7 @@ My Schedule là một ứng dụng lịch đơn giản dành cho Android, cho ph
 
 ## 📸 Ảnh chụp màn hình
 
-<img src="https://github.com/user-attachments/assets/567afe1c-6fce-4ec5-a796-dbc266ae549b" alt="Giao diện xem lịch" width="600">
+<img src="https://github.com/user-attachments/assets/567afe1c-6fce-4ec5-a796-dbc266ae549b" alt="Giao diện xem lịch" width="400">
 
 ## 🤝 Đóng Góp (Contributing)
 
