@@ -2,7 +2,7 @@
 
 My Schedule là một ứng dụng lịch đơn giản dành cho Android, cho phép người dùng nhập và xem các sự kiện từ một file Lịch iCalendar (`.ics`). Ứng dụng được xây dựng ban đầu với mục tiêu giúp người phát triển xem thông tin lịch học qua từng học kì một cách trực quan.
 
-Đây là phiên bản **1.0.0** của dự án.
+Đây là phiên bản **1.0.0** của ứng dụng.
 
 ## ✨ Tính năng chính
 
@@ -51,7 +51,7 @@ Nếu bạn muốn tham gia đóng góp:
 
 ## ⭐️ Ủng hộ
 
-Nếu bạn thấy dự án này thú vị hoặc hữu ích, hãy để lại một **Star** ⭐️ để động viên tinh thần cả nhóm nhé!
+Nếu bạn thấy dự án này hữu ích, hãy để lại một **Star** ⭐️ nhé!
 
 ---
 Developed with ❤️ by **An_K4**.
