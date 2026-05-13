@@ -1,4 +1,4 @@
-package com.example.myschedule
+package com.example.myschedule.receiver
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
+import com.example.myschedule.R
 
 class NotificationReceiver : BroadcastReceiver() {
 
@@ -24,7 +25,8 @@ class NotificationReceiver : BroadcastReceiver() {
 
         // Tạo Notification Channel (bắt buộc cho Android 8.0+)
         // Hệ thống sẽ tự bỏ qua nếu channel đã tồn tại.
-        val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
+        val channel =
+            NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
         notificationManager.createNotificationChannel(channel)
 
         // Xây dựng thông báo

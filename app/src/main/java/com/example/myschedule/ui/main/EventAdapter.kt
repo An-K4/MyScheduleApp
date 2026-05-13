@@ -1,17 +1,16 @@
-package com.example.myschedule
+package com.example.myschedule.ui.main
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myschedule.databinding.EventItemLayoutBinding
-import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.model.component.VEvent
 import net.fortuna.ical4j.model.property.DtEnd
 import net.fortuna.ical4j.model.property.DtStart
+import net.fortuna.ical4j.model.property.Location
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Date
-import net.fortuna.ical4j.model.property.Location
 
 class EventAdapter : RecyclerView.Adapter<EventAdapter.EventViewHolder>() {
 

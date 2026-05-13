@@ -1,17 +1,32 @@
-package com.example.myschedule
+package com.example.myschedule.ui.main
 
+import android.Manifest
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
+import androidx.core.net.toUri
 import androidx.core.view.children
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.myschedule.R
 import com.example.myschedule.databinding.ActivityMainBinding
 import com.example.myschedule.databinding.CalendarDayLayoutBinding
 import com.example.myschedule.databinding.CalendarHeaderLayoutBinding
+import com.example.myschedule.receiver.NotificationReceiver
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.kizitonwose.calendar.core.*
+import com.kizitonwose.calendar.core.CalendarDay
+import com.kizitonwose.calendar.core.CalendarMonth
+import com.kizitonwose.calendar.core.DayPosition
+import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.view.MonthDayBinder
 import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
 import com.kizitonwose.calendar.view.ViewContainer
@@ -20,23 +35,15 @@ import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.model.component.VEvent
 import net.fortuna.ical4j.model.property.Description
 import net.fortuna.ical4j.model.property.DtStart
+import net.fortuna.ical4j.model.property.Uid
 import java.io.InputStream
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.TextStyle
-import java.util.*
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
-import android.os.Build
-import android.widget.Toast
-import net.fortuna.ical4j.model.property.Uid
 import java.util.Calendar
-import androidx.core.content.edit
-import androidx.core.net.toUri
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
@@ -73,7 +80,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.rvEvents.apply {
             adapter = eventAdapter
-            layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this@MainActivity)
+            layoutManager = LinearLayoutManager(this@MainActivity)
         }
 
         loadLastUsedIcsFile()
@@ -293,8 +300,8 @@ class MainActivity : AppCompatActivity() {
             val eventTitle = event.summary?.value ?: "Sự kiện sắp tới"
             val uniqueId = event.getProperty<Uid>("UID")?.value?.hashCode() ?: eventTitle.hashCode()
 
-            intent.putExtra(NotificationReceiver.EVENT_TITLE_KEY, eventTitle)
-            intent.putExtra(NotificationReceiver.NOTIFICATION_ID_KEY, uniqueId)
+            intent.putExtra(NotificationReceiver.Companion.EVENT_TITLE_KEY, eventTitle)
+            intent.putExtra(NotificationReceiver.Companion.NOTIFICATION_ID_KEY, uniqueId)
 
             val pendingIntent = PendingIntent.getBroadcast(
                 this,
@@ -326,21 +333,21 @@ class MainActivity : AppCompatActivity() {
     private fun askNotificationPermission() {
         // Chỉ áp dụng cho Android 13 (Tiramisu) trở lên
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) !=
-                android.content.pm.PackageManager.PERMISSION_GRANTED
+            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
+                PackageManager.PERMISSION_GRANTED
             ) {
-                requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
     }
 
     private fun saveLastUsedIcsUri(uri: Uri) {
-        val sharedPrefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        val sharedPrefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
         sharedPrefs.edit { putString("last_ics_uri", uri.toString()) }
     }
 
     private fun loadLastUsedIcsFile() {
-        val sharedPrefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        val sharedPrefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
         val uriString = sharedPrefs.getString("last_ics_uri", null)
 
         if (uriString != null) {
@@ -358,7 +365,7 @@ class MainActivity : AppCompatActivity() {
             // Có thể xảy ra nếu file bị xóa hoặc không còn truy cập được
             e.printStackTrace()
             // Xóa URI đã lưu để không cố gắng tải lại vào lần sau
-            val sharedPrefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+            val sharedPrefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
             sharedPrefs.edit { remove("last_ics_uri") }
         }
     }
