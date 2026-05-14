@@ -3,86 +3,59 @@ package com.example.myschedule.ui.main
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myschedule.data.entity.CalendarEvent
 import com.example.myschedule.databinding.EventItemLayoutBinding
-import net.fortuna.ical4j.model.component.VEvent
-import net.fortuna.ical4j.model.property.DtEnd
-import net.fortuna.ical4j.model.property.DtStart
-import net.fortuna.ical4j.model.property.Location
+import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Date
 
 class EventAdapter : RecyclerView.Adapter<EventAdapter.EventViewHolder>() {
 
-    private var events: List<VEvent> = emptyList()
+    private var events: List<CalendarEvent> = emptyList()
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-
-    // Đây là một biến kiểu hàm, MainActivity sẽ gán hành động cho nó.
-    // Nhận vào một VEvent (sự kiện được click) và không trả về gì (Unit).
-    var onItemClick: ((VEvent) -> Unit)? = null
-
+    var onItemClick: ((CalendarEvent) -> Unit)? = null
 
     inner class EventViewHolder(private val binding: EventItemLayoutBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         init {
-            // Gán sự kiện click cho toàn bộ view của item
             binding.root.setOnClickListener {
-                // Kiểm tra xem vị trí có hợp lệ không
                 if (adapterPosition != RecyclerView.NO_POSITION) {
-                    // Gọi hàm onItemClick, truyền vào sự kiện ở vị trí đã được click
                     onItemClick?.invoke(events[adapterPosition])
                 }
             }
         }
 
-        fun bind(event: VEvent) {
-            binding.tvEventTitle.text = event.summary?.value ?: "Sự kiện không có tên"
+        fun bind(event: CalendarEvent) {
+            binding.tvEventTitle.text = event.title
 
-            val location = event.getProperty<Location>("LOCATION")?.value
+            val zone = ZoneId.systemDefault()
+            val startText = Instant.ofEpochMilli(event.startTime)
+                .atZone(zone).toLocalTime().format(timeFormatter)
+            val endText = Instant.ofEpochMilli(event.endTime)
+                .atZone(zone).toLocalTime().format(timeFormatter)
 
-            val dtStart = event.getProperty<DtStart>("DTSTART")
-            val dtEnd = event.getProperty<DtEnd>("DTEND")
-            val startTime = dtStart?.date?.toLocalTimeText() ?: ""
-            val endTime = dtEnd?.date?.toLocalTimeText() ?: ""
-
-            val time = if (startTime.isNotEmpty() || endTime.isNotEmpty()) {
-                "$startTime - $endTime"
+            val timeStr = "$startText - $endText"
+            binding.tvEventTime.text = if (!event.location.isNullOrBlank()) {
+                "$timeStr       ${event.location}"
             } else {
-                "Cả ngày"
+                timeStr
             }
-
-            binding.tvEventTime.text = if (!location.isNullOrBlank()) {
-                // Nếu có địa điểm diễn ra sự kiện thì nối chuỗi theo định dạng "Thời gian     Địa chỉ"
-                "$time       $location"
-            } else {
-                time
-            }
-        }
-
-        private fun Date.toLocalTimeText(): String {
-            return this.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalTime()
-                .format(timeFormatter)
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventViewHolder {
-        val binding =
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        EventViewHolder(
             EventItemLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return EventViewHolder(binding)
-    }
+        )
 
-    override fun onBindViewHolder(holder: EventViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: EventViewHolder, position: Int) =
         holder.bind(events[position])
-    }
 
-    override fun getItemCount(): Int = events.size
+    override fun getItemCount() = events.size
 
-    fun submitList(newEvents: List<VEvent>) {
+    fun submitList(newEvents: List<CalendarEvent>) {
         events = newEvents
         notifyDataSetChanged()
     }
-
 }
