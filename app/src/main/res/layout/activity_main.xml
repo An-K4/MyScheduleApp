@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/app_background"
+    android:background="?attr/appBackground"
     tools:context=".ui.main.MainActivity">
 
     <!-- Thanh tiêu đề -->
@@ -19,17 +19,30 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/default_month"
-            android:textColor="@android:color/white"
+            android:textColor="?attr/textPrimary"
             android:textSize="24sp"
             android:textStyle="bold" />
 
+        <!-- Nút thêm file ICS -->
         <ImageView
             android:id="@+id/btnAddIcs"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_add"
+            android:padding="8dp"
             android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"/>
+            android:layout_centerVertical="true" />
+
+        <!-- Nút chuyển đổi Dark/Light mode -->
+        <ImageView
+            android:id="@+id/btnToggleTheme"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_theme_toggle"
+            android:padding="8dp"
+            android:layout_toStartOf="@id/btnAddIcs"
+            android:layout_centerVertical="true" />
+
     </RelativeLayout>
 
     <!-- Giao diện Lịch -->
@@ -53,7 +66,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/day_event"
-            android:textColor="@android:color/white"
+            android:textColor="?attr/textPrimary"
             android:textSize="18sp"
             android:textStyle="bold" />
 

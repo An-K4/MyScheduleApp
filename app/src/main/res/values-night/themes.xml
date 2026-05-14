@@ -1,7 +1,9 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.MySchedule" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+<resources>
+    <style name="Theme.MySchedule" parent="Base.Theme.MySchedule">
+        <!-- Dark mode values -->
+        <item name="appBackground">#1C1C1E</item>
+        <item name="textPrimary">#FFFFFF</item>
+        <item name="calendarDotColor">#FF03DAC5</item>
+        <item name="android:windowBackground">@color/app_background</item>
     </style>
 </resources>

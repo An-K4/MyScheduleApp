@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="appBackground" format="color"/>
+    <attr name="textPrimary" format="color"/>
+    <attr name="calendarDotColor" format="color"/>
+</resources>

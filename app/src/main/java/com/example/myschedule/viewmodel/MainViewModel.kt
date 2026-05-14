@@ -14,11 +14,18 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.ZoneId
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = CalendarRepository(application)
+    private val _currentMonth = MutableLiveData<YearMonth>(YearMonth.now())
+    val currentMonth: LiveData<YearMonth> = _currentMonth
+
+    fun setCurrentMonth(month: YearMonth) {
+        _currentMonth.value = month
+    }
 
     // Ngày đang được chọn
     private val _selectedDate = MutableLiveData<LocalDate>(LocalDate.now())

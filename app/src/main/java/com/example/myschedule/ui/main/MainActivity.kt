@@ -1,5 +1,7 @@
 package com.example.myschedule.ui.main
 
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.edit
 import android.Manifest
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -45,6 +47,11 @@ import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        private const val PREFS_NAME = "app_prefs"
+        private const val KEY_DARK_MODE = "dark_mode"
+    }
+
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
     private lateinit var eventAdapter: EventAdapter
@@ -71,11 +78,29 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        initTheme()
         setupRecyclerView()
         setupCalendar()
         observeViewModel()
         setupClickListeners()
         askNotificationPermission()
+    }
+
+    private fun initTheme() {
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val isDark = prefs.getBoolean(KEY_DARK_MODE, true) // default: dark
+        AppCompatDelegate.setDefaultNightMode(
+            if (isDark) AppCompatDelegate.MODE_NIGHT_YES
+            else AppCompatDelegate.MODE_NIGHT_NO
+        )
+        updateThemeIcon(isDark)
+    }
+
+    private fun updateThemeIcon(isDark: Boolean) {
+        binding.btnToggleTheme.setImageResource(
+            if (isDark) R.drawable.ic_theme_toggle  // icon mặt trăng
+            else R.drawable.ic_sun                  // icon mặt trời (tạo ở bước sau)
+        )
     }
 
     private fun setupRecyclerView() {
@@ -112,6 +137,18 @@ class MainActivity : AppCompatActivity() {
         binding.btnAddIcs.setOnClickListener {
             selectIcsFileLauncher.launch(arrayOf("text/calendar", "application/octet-stream"))
         }
+
+        binding.btnToggleTheme.setOnClickListener {
+            val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val isDark = prefs.getBoolean(KEY_DARK_MODE, true)
+            val newIsDark = !isDark
+
+            prefs.edit { putBoolean(KEY_DARK_MODE, newIsDark) }
+            AppCompatDelegate.setDefaultNightMode(
+                if (newIsDark) AppCompatDelegate.MODE_NIGHT_YES
+                else AppCompatDelegate.MODE_NIGHT_NO
+            )
+        }
     }
 
     // ── Calendar Setup ────────────────────────────────────────────────────────
@@ -135,6 +172,12 @@ class MainActivity : AppCompatActivity() {
         val titlesContainer = CalendarHeaderLayoutBinding.bind(view)
     }
 
+    private fun getThemeColor(attr: Int): Int {
+        val typedValue = android.util.TypedValue()
+        theme.resolveAttribute(attr, typedValue, true)
+        return typedValue.data
+    }
+
     private fun setupCalendar() {
         val currentMonth = YearMonth.now()
         val daysOfWeek = daysOfWeek(firstDayOfWeek = DayOfWeek.MONDAY)
@@ -144,7 +187,10 @@ class MainActivity : AppCompatActivity() {
             currentMonth.plusMonths(100),
             daysOfWeek.first()
         )
-        binding.calendarView.scrollToMonth(currentMonth)
+
+        // scroll đến tháng người dùng đã chọn trước đó, nếu không có thì chọn tháng hiện tại
+        val monthToShow = viewModel.currentMonth.value ?: currentMonth
+        binding.calendarView.scrollToMonth(monthToShow)
 
         binding.calendarView.dayBinder = object : MonthDayBinder<DayViewContainer> {
             override fun create(view: View) = DayViewContainer(view)
@@ -163,14 +209,14 @@ class MainActivity : AppCompatActivity() {
 
                     if (data.date == selectedDate) {
                         rootView.setBackgroundResource(R.drawable.selected_day_background)
-                        textView.setTextColor(resources.getColor(R.color.white, null))
+                        textView.setTextColor(resources.getColor(R.color.white, null)) // giữ trắng khi selected
                     } else {
                         rootView.background = null
                         textView.setTextColor(
                             if (data.date.dayOfWeek == DayOfWeek.SUNDAY)
                                 resources.getColor(R.color.sunday_text_color, null)
                             else
-                                resources.getColor(R.color.white, null)
+                                getThemeColor(com.google.android.material.R.attr.colorOnBackground)
                         )
                     }
                 } else {
@@ -181,6 +227,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.calendarView.monthScrollListener = { month ->
+            viewModel.setCurrentMonth(month.yearMonth)  // ← thêm dòng này
             val monthName = month.yearMonth.month.getDisplayName(TextStyle.FULL, Locale("vi"))
             binding.tvMonthYear.text = "${
                 monthName.replaceFirstChar { it.titlecase(Locale("vi")) }
@@ -200,8 +247,10 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-        // Trigger hiển thị sự kiện ngày hôm nay
-        viewModel.selectDate(LocalDate.now())
+        // Trigger hiển thị sự kiện ngày hôm nay, nếu chưa chọn ngày thì lấy ngày hiện tại
+        if (viewModel.selectedDate.value == null) {
+            viewModel.selectDate(LocalDate.now())
+        }
     }
 
     // ── UI Helpers ────────────────────────────────────────────────────────────
