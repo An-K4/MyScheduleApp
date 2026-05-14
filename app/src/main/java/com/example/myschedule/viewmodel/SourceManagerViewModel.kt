@@ -5,6 +5,7 @@ import android.app.Application
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
@@ -19,17 +20,25 @@ class SourceManagerViewModel(application: Application) : AndroidViewModel(applic
 
     val allSources = repository.getAllSources().asLiveData()
 
+    // 5.5 — Import file ICS mới từ SourceManagerActivity
+    fun importIcsFile(uri: Uri, fileName: String) {
+        viewModelScope.launch {
+            repository.importIcsFile(uri, fileName)
+        }
+    }
+
+    // 5.6 — Toggle bật/tắt nguồn
     fun toggleSource(sourceId: Int, isEnabled: Boolean) {
         viewModelScope.launch {
             repository.updateSourceEnabled(sourceId, isEnabled)
         }
     }
 
+    // 5.7 — Xóa nguồn + hủy notification liên quan
     fun deleteSource(source: CalendarSource) {
         viewModelScope.launch {
             val eventsToCancel = repository.deleteSource(source)
 
-            // Hủy tất cả notification liên quan đến source bị xóa
             val alarmManager =
                 getApplication<Application>().getSystemService(Context.ALARM_SERVICE) as AlarmManager
 

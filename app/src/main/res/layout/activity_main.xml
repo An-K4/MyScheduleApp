@@ -23,6 +23,26 @@
             android:textSize="24sp"
             android:textStyle="bold" />
 
+        <!-- Nút chuyển đổi Dark/Light mode -->
+        <ImageView
+            android:id="@+id/btnToggleTheme"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_theme_toggle"
+            android:padding="8dp"
+            android:layout_toStartOf="@id/btnSourceManager"
+            android:layout_centerVertical="true" />
+
+        <!-- Nút mở màn hình Quản lý Nguồn Lịch -->
+        <ImageView
+            android:id="@+id/btnSourceManager"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_source_manager"
+            android:padding="8dp"
+            android:layout_toStartOf="@id/btnAddIcs"
+            android:layout_centerVertical="true" />
+
         <!-- Nút thêm file ICS -->
         <ImageView
             android:id="@+id/btnAddIcs"
@@ -32,17 +52,6 @@
             android:padding="8dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true" />
-
-        <!-- Nút chuyển đổi Dark/Light mode -->
-        <ImageView
-            android:id="@+id/btnToggleTheme"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_theme_toggle"
-            android:padding="8dp"
-            android:layout_toStartOf="@id/btnAddIcs"
-            android:layout_centerVertical="true" />
-
     </RelativeLayout>
 
     <!-- Giao diện Lịch -->

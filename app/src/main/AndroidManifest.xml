@@ -2,10 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Bắt buộc cho Android 13 (API 33) trở lên để hiển thị thông báo -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
-    <!-- Cần thiết để đặt báo thức chính xác -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
@@ -17,17 +14,24 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MySchedule">
+
         <activity
             android:name=".ui.main.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <!-- 5.4 — Đăng ký SourceManagerActivity -->
+        <activity
+            android:name=".ui.source.SourceManagerActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.main.MainActivity" />
+
         <receiver android:name=".receiver.NotificationReceiver" android:enabled="true"/>
+
     </application>
 
 </manifest>

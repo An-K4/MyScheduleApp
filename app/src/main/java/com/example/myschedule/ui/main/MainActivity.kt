@@ -3,8 +3,6 @@ package com.example.myschedule.ui.main
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import android.Manifest
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -18,15 +16,14 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myschedule.R
 import com.example.myschedule.data.entity.CalendarEvent
-import com.example.myschedule.data.repository.CalendarRepository
 import com.example.myschedule.databinding.ActivityMainBinding
 import com.example.myschedule.databinding.CalendarDayLayoutBinding
 import com.example.myschedule.databinding.CalendarHeaderLayoutBinding
 import com.example.myschedule.receiver.NotificationReceiver
+import com.example.myschedule.ui.source.SourceManagerActivity
 import com.example.myschedule.viewmodel.MainViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.kizitonwose.calendar.core.CalendarDay
@@ -36,13 +33,10 @@ import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.view.MonthDayBinder
 import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
 import com.kizitonwose.calendar.view.ViewContainer
-import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
-import java.time.ZoneId
 import java.time.format.TextStyle
-import java.util.Calendar
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
@@ -56,7 +50,6 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
     private lateinit var eventAdapter: EventAdapter
 
-    // Cache local để calendar binder đọc đồng bộ (không cần suspend)
     private var eventDatesCache: Set<LocalDate> = emptySet()
     private var selectedDate: LocalDate = LocalDate.now()
 
@@ -88,7 +81,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initTheme() {
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val isDark = prefs.getBoolean(KEY_DARK_MODE, true) // default: dark
+        val isDark = prefs.getBoolean(KEY_DARK_MODE, true)
         AppCompatDelegate.setDefaultNightMode(
             if (isDark) AppCompatDelegate.MODE_NIGHT_YES
             else AppCompatDelegate.MODE_NIGHT_NO
@@ -98,8 +91,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateThemeIcon(isDark: Boolean) {
         binding.btnToggleTheme.setImageResource(
-            if (isDark) R.drawable.ic_theme_toggle  // icon mặt trăng
-            else R.drawable.ic_sun                  // icon mặt trời (tạo ở bước sau)
+            if (isDark) R.drawable.ic_theme_toggle
+            else R.drawable.ic_sun
         )
     }
 
@@ -113,18 +106,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
-        // Quan sát danh sách ngày có sự kiện → cập nhật dấu chấm trên lịch
         viewModel.eventDates.observe(this) { dates ->
             eventDatesCache = dates
             binding.calendarView.notifyCalendarChanged()
         }
 
-        // Quan sát sự kiện của ngày đang chọn → cập nhật danh sách bên dưới
         viewModel.eventsForSelectedDate.observe(this) { events ->
             updateEventList(events)
         }
 
-        // Quan sát ngày được chọn → cập nhật highlight trên lịch
         viewModel.selectedDate.observe(this) { newDate ->
             val oldDate = selectedDate
             selectedDate = newDate
@@ -134,20 +124,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
+        // Nút + → import nhanh từ màn hình chính (shortcut)
         binding.btnAddIcs.setOnClickListener {
             selectIcsFileLauncher.launch(arrayOf("text/calendar", "application/octet-stream"))
         }
 
+        // Nút theme toggle
         binding.btnToggleTheme.setOnClickListener {
             val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             val isDark = prefs.getBoolean(KEY_DARK_MODE, true)
             val newIsDark = !isDark
-
             prefs.edit { putBoolean(KEY_DARK_MODE, newIsDark) }
             AppCompatDelegate.setDefaultNightMode(
                 if (newIsDark) AppCompatDelegate.MODE_NIGHT_YES
                 else AppCompatDelegate.MODE_NIGHT_NO
             )
+        }
+
+        // 5.8 — Nút mở màn hình Quản lý Nguồn Lịch
+        binding.btnSourceManager.setOnClickListener {
+            startActivity(Intent(this, SourceManagerActivity::class.java))
         }
     }
 
@@ -188,7 +184,6 @@ class MainActivity : AppCompatActivity() {
             daysOfWeek.first()
         )
 
-        // scroll đến tháng người dùng đã chọn trước đó, nếu không có thì chọn tháng hiện tại
         val monthToShow = viewModel.currentMonth.value ?: currentMonth
         binding.calendarView.scrollToMonth(monthToShow)
 
@@ -209,7 +204,7 @@ class MainActivity : AppCompatActivity() {
 
                     if (data.date == selectedDate) {
                         rootView.setBackgroundResource(R.drawable.selected_day_background)
-                        textView.setTextColor(resources.getColor(R.color.white, null)) // giữ trắng khi selected
+                        textView.setTextColor(resources.getColor(R.color.white, null))
                     } else {
                         rootView.background = null
                         textView.setTextColor(
@@ -227,7 +222,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.calendarView.monthScrollListener = { month ->
-            viewModel.setCurrentMonth(month.yearMonth)  // ← thêm dòng này
+            viewModel.setCurrentMonth(month.yearMonth)
             val monthName = month.yearMonth.month.getDisplayName(TextStyle.FULL, Locale("vi"))
             binding.tvMonthYear.text = "${
                 monthName.replaceFirstChar { it.titlecase(Locale("vi")) }
@@ -247,7 +242,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-        // Trigger hiển thị sự kiện ngày hôm nay, nếu chưa chọn ngày thì lấy ngày hiện tại
         if (viewModel.selectedDate.value == null) {
             viewModel.selectDate(LocalDate.now())
         }
