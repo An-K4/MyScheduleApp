@@ -6,6 +6,7 @@ import com.example.myschedule.data.db.AppDatabase
 import com.example.myschedule.data.db.EventTimeWithSource
 import com.example.myschedule.data.entity.CalendarEvent
 import com.example.myschedule.data.entity.CalendarSource
+import com.example.myschedule.receiver.NotificationScheduler
 import kotlinx.coroutines.flow.Flow
 import net.fortuna.ical4j.data.CalendarBuilder
 import net.fortuna.ical4j.model.component.VEvent
@@ -44,6 +45,8 @@ class CalendarRepository(private val context: Context) {
 
     suspend fun deleteSource(source: CalendarSource): List<CalendarEvent> {
         val events = eventDao.getEventsBySourceId(source.id)
+        // Hủy toàn bộ thông báo liên quan trước khi xóa
+        NotificationScheduler.cancelAll(context, events)
         sourceDao.delete(source)
         return events
     }
@@ -67,6 +70,9 @@ class CalendarRepository(private val context: Context) {
 
             val events = parseIcsToEvents(uri, sourceId)
             eventDao.insertAll(events)
+
+            // Lên lịch thông báo cho tất cả sự kiện mới import
+            NotificationScheduler.scheduleAll(context, events)
 
             ImportResult.Success(savedSource, events.size)
         } catch (e: Exception) {

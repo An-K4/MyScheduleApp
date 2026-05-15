@@ -1,57 +1,88 @@
 # My Schedule - Ứng dụng Lịch Android từ file ICS
 
-My Schedule là một ứng dụng lịch đơn giản dành cho Android, cho phép người dùng nhập và xem các sự kiện từ một file Lịch iCalendar (`.ics`). Ứng dụng được xây dựng ban đầu với mục tiêu giúp người phát triển xem thông tin lịch học qua từng học kì một cách trực quan.
+My Schedule là một ứng dụng lịch dành cho Android, cho phép người dùng nhập và quản lý nhiều nguồn lịch từ các file iCalendar (`.ics`). Ứng dụng được xây dựng với mục tiêu giúp người dùng xem thông tin lịch học qua từng học kì một cách trực quan.
 
-Đây là phiên bản **1.0.0** của ứng dụng.
+Đây là phiên bản **2.0.0** của ứng dụng.
 
 ## ✨ Tính năng chính
 
-*   **Hiển thị Lịch theo Tháng:** Giao diện lịch rõ ràng, cho phép cuộn qua lại giữa các tháng.
-*   **Nhập Sự kiện từ file `.ics`:** Dễ dàng chọn và nhập một file `.ics` từ bộ nhớ của thiết bị để hiển thị tất cả các sự kiện.
-*   **Hiển thị Sự kiện trong Ngày:** Khi chọn một ngày cụ thể, ứng dụng sẽ liệt kê tất cả các sự kiện diễn ra trong ngày đó.
-*   **Xem Chi tiết Sự kiện:** Nhấn vào một sự kiện để xem chi tiết, bao gồm tiêu đề, địa điểm và mô tả.
-*   **Thông báo Sự kiện:** Tự động lên lịch và gửi thông báo cho người dùng 30 phút trước khi một sự kiện bắt đầu.
-*   **Lưu trữ Bền vững:** Ứng dụng sẽ ghi nhớ file `.ics` bạn đã chọn lần cuối và tự động tải lại lịch mỗi khi bạn mở ứng dụng.
+### Lịch & Sự kiện
+- **Hiển thị Lịch theo Tháng:** Giao diện lịch rõ ràng, cho phép cuộn qua lại giữa các tháng.
+- **Dấu chấm màu trên ngày:** Mỗi nguồn lịch có màu riêng, các ngày có sự kiện hiển thị chấm màu tương ứng — nhìn là biết ngay sự kiện từ nguồn nào.
+- **Hiển thị Sự kiện trong Ngày:** Chọn một ngày để xem toàn bộ sự kiện, thanh màu dọc bên trái mỗi item phân biệt nguồn lịch.
+- **Xem Chi tiết Sự kiện:** Nhấn vào sự kiện để xem tiêu đề, địa điểm và mô tả.
+
+### Quản lý Nguồn Lịch
+- **Đa nguồn lịch:** Nhập nhiều file `.ics` cùng lúc, mỗi nguồn được gán màu tự động.
+- **Màn hình Quản lý Nguồn:** Xem toàn bộ các nguồn lịch đã nhập, với màu nền đặc trưng cho từng nguồn.
+- **Filter theo nguồn:** Bật/tắt từng nguồn bằng checkbox — lịch cập nhật realtime.
+- **Xóa nguồn:** Xóa nguồn lịch kèm toàn bộ sự kiện liên quan.
+- **Chống trùng lặp:** Ứng dụng phát hiện và báo lỗi nếu import cùng một file `.ics` hai lần.
+
+### Giao diện & Tiện ích
+- **Dark / Light mode:** Nút chuyển đổi giao diện ngay trên trang chủ, lưu lại lựa chọn.
+- **Thông báo Sự kiện:** Tự động gửi thông báo 30 phút trước khi sự kiện bắt đầu.
+- **Lưu trữ bền vững:** Toàn bộ dữ liệu lưu trong Room Database, không mất khi khởi động lại.
 
 ## 🛠️ Công nghệ sử dụng
 
-*   **Ngôn ngữ:** [Kotlin](https://kotlinlang.org/)
-*   **Kiến trúc:** Single Activity, ViewBinding
-*   **Giao diện Lịch:** [Kizitonwose Calendar View](https://github.com/kizitonwose/Calendar) - Một thư viện mạnh mẽ và linh hoạt để tạo giao diện lịch tùy chỉnh.
-*   **Phân tích `.ics`:** [iCal4j](https://github.com/ical4j/ical4j) - Thư viện Java tiêu chuẩn để đọc và xử lý dữ liệu iCalendar.
-*   **Thông báo & Lên lịch:** `AlarmManager`, `BroadcastReceiver`, và `NotificationManager` của Android SDK.
-*   **Giao diện người dùng:** Material Components for Android.
+| Thành phần | Công nghệ |
+|-----------|-----------|
+| Ngôn ngữ | [Kotlin](https://kotlinlang.org/) |
+| Kiến trúc | MVVM — ViewModel + LiveData + Repository |
+| Database | [Room](https://developer.android.com/training/data-storage/room) |
+| Giao diện Lịch | [Kizitonwose Calendar View](https://github.com/kizitonwose/Calendar) |
+| Phân tích `.ics` | [iCal4j](https://github.com/ical4j/ical4j) |
+| Async | Kotlin Coroutines + Flow |
+| Thông báo | `AlarmManager` + `BroadcastReceiver` + `NotificationManager` |
+| UI | Material Components for Android |
+
+## 📁 Cấu trúc dự án
+
+```
+app/src/main/java/com/example/myschedule/
+├── data/
+│   ├── db/            ← Room DAOs + AppDatabase
+│   ├── entity/        ← CalendarSource, CalendarEvent
+│   └── repository/    ← CalendarRepository, ImportResult
+├── ui/
+│   ├── main/          ← MainActivity, EventAdapter
+│   └── source/        ← SourceManagerActivity, SourceAdapter
+├── viewmodel/         ← MainViewModel, SourceManagerViewModel
+└── receiver/          ← NotificationReceiver, NotificationScheduler
+```
 
 ## 🚀 Hướng dẫn Build
 
-1.  Clone repository này về máy của bạn.
-
+1. Clone repository:
     ```bash
     git clone https://github.com/An-K4/MyScheduleApp.git
     cd myscheduleapp
     ```
-
-2.  Mở dự án bằng phiên bản Android Studio mới nhất.
-3.  Đợi Gradle đồng bộ hóa tất cả các thư viện phụ thuộc.
-4.  Build và chạy ứng dụng trên máy ảo hoặc thiết bị thật.
+2. Mở dự án bằng Android Studio (phiên bản mới nhất).
+3. Đợi Gradle đồng bộ hóa dependencies.
+4. Build và chạy trên máy ảo hoặc thiết bị thật (API 26+).
 
 ## 📸 Ảnh chụp màn hình
 
-<img src="https://github.com/user-attachments/assets/567afe1c-6fce-4ec5-a796-dbc266ae549b" alt="Giao diện xem lịch" width="400">
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/4918d3a5-6e38-48cf-819e-8e0f0a1776e9" width="24%"/>
+  <img src="https://github.com/user-attachments/assets/1b3064f1-b2c9-4c34-95d9-d365da053b02" width="24%"/>
+  <img src="https://github.com/user-attachments/assets/992caf14-3df8-431a-956e-7c98f68ebf78" width="24%"/>
+  <img src="https://github.com/user-attachments/assets/9ec077f9-0dcc-4aaf-a2bd-9ea76f204343" width="24%"/>
+</p>
 
-## 🤝 Đóng Góp (Contributing)
+## 🤝 Đóng Góp
 
-Nếu bạn muốn tham gia đóng góp:
-
-1.  **Fork** repository này về tài khoản của bạn.
-2.  Tạo nhánh mới cho tính năng của bạn (`git checkout -b feature/TinhNangMoi`).
-3.  Commit những thay đổi (`git commit -m 'Thêm tính năng X'`).
-4.  Push lên nhánh của bạn (`git push origin feature/TinhNangMoi`).
-5.  Tạo một **Pull Request** trên GitHub.
+1. **Fork** repository này.
+2. Tạo nhánh mới (`git checkout -b feature/TinhNangMoi`).
+3. Commit thay đổi (`git commit -m 'Thêm tính năng X'`).
+4. Push lên nhánh (`git push origin feature/TinhNangMoi`).
+5. Tạo **Pull Request**.
 
 ## ⭐️ Ủng hộ
 
-Nếu bạn thấy dự án này hữu ích, hãy để lại một **Star** ⭐️ nhé!
+Nếu thấy dự án hữu ích, hãy để lại một **Star** ⭐️!
 
 ---
-Developed with ❤️ by **An_K4**.
+Developed by **An_K4**.
