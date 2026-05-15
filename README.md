@@ -8,7 +8,7 @@ My Schedule là một ứng dụng lịch dành cho Android, cho phép người 
 
 ### Lịch & Sự kiện
 - **Hiển thị Lịch theo Tháng:** Giao diện lịch rõ ràng, cho phép cuộn qua lại giữa các tháng.
-- **Dấu chấm màu trên ngày:** Mỗi nguồn lịch có màu riêng, các ngày có sự kiện hiển thị chấm màu tương ứng — nhìn là biết ngay sự kiện từ nguồn nào.
+- **Dấu chấm màu trên ngày:** Mỗi nguồn lịch có màu riêng, các ngày có sự kiện hiển thị chấm màu tương ứng.
 - **Hiển thị Sự kiện trong Ngày:** Chọn một ngày để xem toàn bộ sự kiện, thanh màu dọc bên trái mỗi item phân biệt nguồn lịch.
 - **Xem Chi tiết Sự kiện:** Nhấn vào sự kiện để xem tiêu đề, địa điểm và mô tả.
 
@@ -59,7 +59,7 @@ app/src/main/java/com/example/myschedule/
     git clone https://github.com/An-K4/MyScheduleApp.git
     cd myscheduleapp
     ```
-2. Mở dự án bằng Android Studio (phiên bản mới nhất).
+2. Mở dự án bằng Android Studio.
 3. Đợi Gradle đồng bộ hóa dependencies.
 4. Build và chạy trên máy ảo hoặc thiết bị thật (API 26+).
 
