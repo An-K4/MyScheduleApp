@@ -21,4 +21,8 @@ interface CalendarSourceDao {
 
     @Query("SELECT COUNT(*) FROM calendar_sources")
     suspend fun getCount(): Int
+
+    // Check duplicate trước khi import
+    @Query("SELECT * FROM calendar_sources WHERE uri = :uri LIMIT 1")
+    suspend fun getByUri(uri: String): CalendarSource?
 }

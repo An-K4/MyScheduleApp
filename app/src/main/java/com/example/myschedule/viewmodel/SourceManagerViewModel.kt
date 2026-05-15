@@ -7,10 +7,13 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.myschedule.data.entity.CalendarSource
 import com.example.myschedule.data.repository.CalendarRepository
+import com.example.myschedule.data.repository.ImportResult
 import com.example.myschedule.receiver.NotificationReceiver
 import kotlinx.coroutines.launch
 
@@ -20,28 +23,29 @@ class SourceManagerViewModel(application: Application) : AndroidViewModel(applic
 
     val allSources = repository.getAllSources().asLiveData()
 
-    // 5.5 — Import file ICS mới từ SourceManagerActivity
+    private val _importResult = MutableLiveData<ImportResult?>()
+    val importResult: LiveData<ImportResult?> = _importResult
+
     fun importIcsFile(uri: Uri, fileName: String) {
         viewModelScope.launch {
-            repository.importIcsFile(uri, fileName)
+            val result = repository.importIcsFile(uri, fileName)
+            _importResult.value = result
         }
     }
 
-    // 5.6 — Toggle bật/tắt nguồn
+    fun clearImportResult() { _importResult.value = null }
+
     fun toggleSource(sourceId: Int, isEnabled: Boolean) {
         viewModelScope.launch {
             repository.updateSourceEnabled(sourceId, isEnabled)
         }
     }
 
-    // 5.7 — Xóa nguồn + hủy notification liên quan
     fun deleteSource(source: CalendarSource) {
         viewModelScope.launch {
             val eventsToCancel = repository.deleteSource(source)
-
             val alarmManager =
                 getApplication<Application>().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
             eventsToCancel.forEach { event ->
                 val intent = Intent(getApplication(), NotificationReceiver::class.java)
                 val pendingIntent = PendingIntent.getBroadcast(

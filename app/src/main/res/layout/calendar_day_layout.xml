@@ -13,23 +13,24 @@
         android:gravity="center"
         android:textColor="@android:color/white"
         android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/dotsContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
         tools:text="24" />
 
-    <!-- Dấu chấm biểu thị có sự kiện -->
-    <View
-        android:id="@+id/vEventDot"
-        android:layout_width="5dp"
-        android:layout_height="5dp"
-        android:layout_marginTop="4dp"
-        android:background="@drawable/event_dot_background"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@id/tvDayText"
-        app:layout_constraintStart_toStartOf="@id/tvDayText"
+    <!-- Container chứa nhiều chấm màu theo nguồn lịch -->
+    <LinearLayout
+        android:id="@+id/dotsContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="6dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="3dp"
         app:layout_constraintTop_toBottomOf="@id/tvDayText"
-        tools:visibility="visible" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

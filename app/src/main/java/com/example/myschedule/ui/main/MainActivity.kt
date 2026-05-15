@@ -6,6 +6,7 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -19,10 +20,10 @@ import androidx.core.view.children
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myschedule.R
 import com.example.myschedule.data.entity.CalendarEvent
+import com.example.myschedule.data.repository.ImportResult
 import com.example.myschedule.databinding.ActivityMainBinding
 import com.example.myschedule.databinding.CalendarDayLayoutBinding
 import com.example.myschedule.databinding.CalendarHeaderLayoutBinding
-import com.example.myschedule.receiver.NotificationReceiver
 import com.example.myschedule.ui.source.SourceManagerActivity
 import com.example.myschedule.viewmodel.MainViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -44,6 +45,9 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val PREFS_NAME = "app_prefs"
         private const val KEY_DARK_MODE = "dark_mode"
+        private const val DOT_SIZE_DP = 5
+        private const val DOT_MARGIN_DP = 2
+        private const val MAX_DOTS = 4
     }
 
     private lateinit var binding: ActivityMainBinding
@@ -51,6 +55,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var eventAdapter: EventAdapter
 
     private var eventDatesCache: Set<LocalDate> = emptySet()
+    private var eventDateColorsCache: Map<LocalDate, List<Int>> = emptyMap()
     private var selectedDate: LocalDate = LocalDate.now()
 
     private val requestPermissionLauncher =
@@ -60,9 +65,7 @@ class MainActivity : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
             uri?.let {
                 contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                val fileName = getFileName(it)
-                viewModel.importIcsFile(it, fileName)
-                Toast.makeText(this, "Đã nhập: $fileName", Toast.LENGTH_SHORT).show()
+                viewModel.importIcsFile(it, getFileName(it))
             }
         }
 
@@ -83,16 +86,14 @@ class MainActivity : AppCompatActivity() {
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val isDark = prefs.getBoolean(KEY_DARK_MODE, true)
         AppCompatDelegate.setDefaultNightMode(
-            if (isDark) AppCompatDelegate.MODE_NIGHT_YES
-            else AppCompatDelegate.MODE_NIGHT_NO
+            if (isDark) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
         )
         updateThemeIcon(isDark)
     }
 
     private fun updateThemeIcon(isDark: Boolean) {
         binding.btnToggleTheme.setImageResource(
-            if (isDark) R.drawable.ic_theme_toggle
-            else R.drawable.ic_sun
+            if (isDark) R.drawable.ic_theme_toggle else R.drawable.ic_sun
         )
     }
 
@@ -106,9 +107,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
-        viewModel.eventDates.observe(this) { dates ->
-            eventDatesCache = dates
+        viewModel.eventDateColors.observe(this) { dateColors ->
+            eventDateColorsCache = dateColors
+            eventDatesCache = dateColors.keys
             binding.calendarView.notifyCalendarChanged()
+        }
+
+        viewModel.sourceColors.observe(this) { colors ->
+            eventAdapter.updateSourceColors(colors)
         }
 
         viewModel.eventsForSelectedDate.observe(this) { events ->
@@ -121,45 +127,57 @@ class MainActivity : AppCompatActivity() {
             binding.calendarView.notifyDateChanged(newDate)
             if (oldDate != newDate) binding.calendarView.notifyDateChanged(oldDate)
         }
+
+        // Observe import result — toast đúng trường hợp
+        viewModel.importResult.observe(this) { result ->
+            result ?: return@observe
+            when (result) {
+                is ImportResult.Success ->
+                    Toast.makeText(
+                        this,
+                        "Đã nhập \"${result.source.name}\" — ${result.eventCount} sự kiện",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                is ImportResult.Duplicate ->
+                    Toast.makeText(
+                        this,
+                        "\"${result.existingSource.name}\" đã được nhập trước đó",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                is ImportResult.Error ->
+                    Toast.makeText(this, "Lỗi: ${result.message}", Toast.LENGTH_LONG).show()
+            }
+            viewModel.clearImportResult()
+        }
     }
 
     private fun setupClickListeners() {
-        // Nút + → import nhanh từ màn hình chính (shortcut)
         binding.btnAddIcs.setOnClickListener {
             selectIcsFileLauncher.launch(arrayOf("text/calendar", "application/octet-stream"))
         }
-
-        // Nút theme toggle
         binding.btnToggleTheme.setOnClickListener {
             val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             val isDark = prefs.getBoolean(KEY_DARK_MODE, true)
             val newIsDark = !isDark
             prefs.edit { putBoolean(KEY_DARK_MODE, newIsDark) }
             AppCompatDelegate.setDefaultNightMode(
-                if (newIsDark) AppCompatDelegate.MODE_NIGHT_YES
-                else AppCompatDelegate.MODE_NIGHT_NO
+                if (newIsDark) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
             )
         }
-
-        // 5.8 — Nút mở màn hình Quản lý Nguồn Lịch
         binding.btnSourceManager.setOnClickListener {
             startActivity(Intent(this, SourceManagerActivity::class.java))
         }
     }
 
-    // ── Calendar Setup ────────────────────────────────────────────────────────
+    // ── Calendar ─────────────────────────────────────────────────────────────
 
     inner class DayViewContainer(view: View) : ViewContainer(view) {
         val dayBinding = CalendarDayLayoutBinding.bind(view)
         lateinit var day: CalendarDay
-
         init {
             view.setOnClickListener {
-                if (day.position == DayPosition.MonthDate) {
-                    if (day.date != selectedDate) {
-                        viewModel.selectDate(day.date)
-                    }
-                }
+                if (day.position == DayPosition.MonthDate && day.date != selectedDate)
+                    viewModel.selectDate(day.date)
             }
         }
     }
@@ -176,31 +194,26 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupCalendar() {
         val currentMonth = YearMonth.now()
-        val daysOfWeek = daysOfWeek(firstDayOfWeek = DayOfWeek.MONDAY)
-
         binding.calendarView.setup(
             currentMonth.minusMonths(100),
             currentMonth.plusMonths(100),
-            daysOfWeek.first()
+            daysOfWeek(firstDayOfWeek = DayOfWeek.MONDAY).first()
         )
-
-        val monthToShow = viewModel.currentMonth.value ?: currentMonth
-        binding.calendarView.scrollToMonth(monthToShow)
+        binding.calendarView.scrollToMonth(viewModel.currentMonth.value ?: currentMonth)
 
         binding.calendarView.dayBinder = object : MonthDayBinder<DayViewContainer> {
             override fun create(view: View) = DayViewContainer(view)
             override fun bind(container: DayViewContainer, data: CalendarDay) {
                 container.day = data
                 val textView = container.dayBinding.tvDayText
-                val dotView = container.dayBinding.vEventDot
+                val dotsContainer = container.dayBinding.dotsContainer
                 val rootView = container.view
 
                 textView.text = data.date.dayOfMonth.toString()
 
                 if (data.position == DayPosition.MonthDate) {
                     textView.visibility = View.VISIBLE
-                    dotView.visibility =
-                        if (eventDatesCache.contains(data.date)) View.VISIBLE else View.INVISIBLE
+                    renderEventDots(dotsContainer, data.date)
 
                     if (data.date == selectedDate) {
                         rootView.setBackgroundResource(R.drawable.selected_day_background)
@@ -216,7 +229,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 } else {
                     textView.visibility = View.INVISIBLE
-                    dotView.visibility = View.INVISIBLE
+                    dotsContainer.removeAllViews()
                 }
             }
         }
@@ -242,8 +255,26 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-        if (viewModel.selectedDate.value == null) {
-            viewModel.selectDate(LocalDate.now())
+        if (viewModel.selectedDate.value == null) viewModel.selectDate(LocalDate.now())
+    }
+
+    private fun renderEventDots(container: android.widget.LinearLayout, date: LocalDate) {
+        container.removeAllViews()
+        val colors = eventDateColorsCache[date] ?: return
+        val density = resources.displayMetrics.density
+        val sizePx = (DOT_SIZE_DP * density).toInt()
+        val marginPx = (DOT_MARGIN_DP * density).toInt()
+        colors.take(MAX_DOTS).forEach { color ->
+            val dot = View(this).apply {
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.OVAL
+                    setColor(color)
+                }
+                layoutParams = android.widget.LinearLayout.LayoutParams(sizePx, sizePx).apply {
+                    setMargins(marginPx, 0, marginPx, 0)
+                }
+            }
+            container.addView(dot)
         }
     }
 
@@ -252,7 +283,6 @@ class MainActivity : AppCompatActivity() {
     private fun updateEventList(events: List<CalendarEvent>) {
         binding.tvNoEvent.visibility = View.GONE
         binding.rvEvents.visibility = View.GONE
-
         if (events.isEmpty()) {
             binding.tvNoEvent.text = "Không có sự kiện nào"
             binding.tvNoEvent.visibility = View.VISIBLE

@@ -9,6 +9,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myschedule.data.entity.CalendarSource
+import com.example.myschedule.data.repository.ImportResult
 import com.example.myschedule.databinding.ActivitySourceManagerBinding
 import com.example.myschedule.viewmodel.SourceManagerViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -19,17 +20,13 @@ class SourceManagerActivity : AppCompatActivity() {
     private val viewModel: SourceManagerViewModel by viewModels()
     private lateinit var sourceAdapter: SourceAdapter
 
-    // 5.5 — File picker để import .ics mới
     private val selectIcsFileLauncher =
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
             uri?.let {
                 contentResolver.takePersistableUriPermission(
-                    it,
-                    android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    it, android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
-                val fileName = getFileName(it)
-                viewModel.importIcsFile(it, fileName)
-                Toast.makeText(this, "Đã nhập: $fileName", Toast.LENGTH_SHORT).show()
+                viewModel.importIcsFile(it, getFileName(it))
             }
         }
 
@@ -52,16 +49,9 @@ class SourceManagerActivity : AppCompatActivity() {
 
     private fun setupRecyclerView() {
         sourceAdapter = SourceAdapter(
-            // 5.6 — Toggle checkbox → cập nhật DB
-            onToggle = { source, isEnabled ->
-                viewModel.toggleSource(source.id, isEnabled)
-            },
-            // 5.7 — Xóa nguồn → xác nhận → xóa source + cascade events
-            onDelete = { source ->
-                showDeleteConfirmDialog(source)
-            }
+            onToggle = { source, isEnabled -> viewModel.toggleSource(source.id, isEnabled) },
+            onDelete = { source -> showDeleteConfirmDialog(source) }
         )
-
         binding.rvSources.apply {
             adapter = sourceAdapter
             layoutManager = LinearLayoutManager(this@SourceManagerActivity)
@@ -71,28 +61,38 @@ class SourceManagerActivity : AppCompatActivity() {
     private fun observeViewModel() {
         viewModel.allSources.observe(this) { sources ->
             sourceAdapter.submitList(sources)
+            binding.layoutEmpty.visibility = if (sources.isEmpty()) View.VISIBLE else View.GONE
+            binding.rvSources.visibility = if (sources.isEmpty()) View.GONE else View.VISIBLE
+        }
 
-            // Hiện/ẩn empty state
-            if (sources.isEmpty()) {
-                binding.layoutEmpty.visibility = View.VISIBLE
-                binding.rvSources.visibility = View.GONE
-            } else {
-                binding.layoutEmpty.visibility = View.GONE
-                binding.rvSources.visibility = View.VISIBLE
+        viewModel.importResult.observe(this) { result ->
+            result ?: return@observe
+            when (result) {
+                is ImportResult.Success ->
+                    Toast.makeText(
+                        this,
+                        "Đã nhập \"${result.source.name}\" — ${result.eventCount} sự kiện",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                is ImportResult.Duplicate ->
+                    Toast.makeText(
+                        this,
+                        "\"${result.existingSource.name}\" đã được nhập trước đó",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                is ImportResult.Error ->
+                    Toast.makeText(this, "Lỗi: ${result.message}", Toast.LENGTH_LONG).show()
             }
+            viewModel.clearImportResult()
         }
     }
 
     private fun setupClickListeners() {
-        // 5.5 — FAB mở file picker
         binding.fabAddSource.setOnClickListener {
-            selectIcsFileLauncher.launch(
-                arrayOf("text/calendar", "application/octet-stream")
-            )
+            selectIcsFileLauncher.launch(arrayOf("text/calendar", "application/octet-stream"))
         }
     }
 
-    // 5.7 — Dialog xác nhận xóa
     private fun showDeleteConfirmDialog(source: CalendarSource) {
         MaterialAlertDialogBuilder(this)
             .setTitle("Xóa nguồn lịch?")

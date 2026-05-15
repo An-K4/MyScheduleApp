@@ -13,7 +13,6 @@ interface CalendarEventDao {
     @Query("DELETE FROM calendar_events WHERE sourceId = :sourceId")
     suspend fun deleteBySourceId(sourceId: Int)
 
-    // Lấy events trong 1 ngày cụ thể, chỉ từ các source đang bật
     @Query("""
         SELECT e.* FROM calendar_events e
         INNER JOIN calendar_sources s ON e.sourceId = s.id
@@ -24,15 +23,14 @@ interface CalendarEventDao {
     """)
     fun getEventsForDay(dayStart: Long, dayEnd: Long): Flow<List<CalendarEvent>>
 
-    // Lấy tất cả startTime của events từ sources đang bật (để vẽ dấu chấm trên lịch)
+    // 6.3 — Trả startTime + sourceId để ViewModel map sang màu sắc
     @Query("""
-        SELECT e.startTime FROM calendar_events e
+        SELECT e.startTime, e.sourceId FROM calendar_events e
         INNER JOIN calendar_sources s ON e.sourceId = s.id
         WHERE s.isEnabled = 1
     """)
-    fun getEnabledEventStartTimes(): Flow<List<Long>>
+    fun getEnabledEventStartTimes(): Flow<List<EventTimeWithSource>>
 
-    // Lấy events theo sourceId (để hủy notification khi xóa source)
     @Query("SELECT * FROM calendar_events WHERE sourceId = :sourceId")
     suspend fun getEventsBySourceId(sourceId: Int): List<CalendarEvent>
 }

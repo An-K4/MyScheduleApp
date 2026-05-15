@@ -12,6 +12,10 @@ import java.time.format.DateTimeFormatter
 class EventAdapter : RecyclerView.Adapter<EventAdapter.EventViewHolder>() {
 
     private var events: List<CalendarEvent> = emptyList()
+
+    // Map sourceId → color (ARGB Int), cập nhật từ ViewModel
+    private var sourceColors: Map<Int, Int> = emptyMap()
+
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
     var onItemClick: ((CalendarEvent) -> Unit)? = null
 
@@ -41,6 +45,16 @@ class EventAdapter : RecyclerView.Adapter<EventAdapter.EventViewHolder>() {
             } else {
                 timeStr
             }
+
+            // 6.2 — Thanh màu dọc lấy màu từ source, fallback về màu mặc định nếu không tìm thấy
+            val color = sourceColors[event.sourceId]
+            if (color != null) {
+                binding.vEventColor.setBackgroundColor(color)
+            } else {
+                binding.vEventColor.setBackgroundResource(
+                    com.example.myschedule.R.color.selected_day_background
+                )
+            }
         }
     }
 
@@ -56,6 +70,12 @@ class EventAdapter : RecyclerView.Adapter<EventAdapter.EventViewHolder>() {
 
     fun submitList(newEvents: List<CalendarEvent>) {
         events = newEvents
+        notifyDataSetChanged()
+    }
+
+    // Gọi từ Activity khi danh sách source thay đổi
+    fun updateSourceColors(colors: Map<Int, Int>) {
+        sourceColors = colors
         notifyDataSetChanged()
     }
 }

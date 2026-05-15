@@ -1,18 +1,21 @@
 package com.example.myschedule.viewmodel
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.myschedule.data.entity.CalendarEvent
 import com.example.myschedule.data.repository.CalendarRepository
+import com.example.myschedule.data.repository.ImportResult
+import com.example.myschedule.data.entity.CalendarEvent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.time.Instant
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
@@ -20,50 +23,64 @@ import java.time.ZoneId
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = CalendarRepository(application)
+
     private val _currentMonth = MutableLiveData<YearMonth>(YearMonth.now())
     val currentMonth: LiveData<YearMonth> = _currentMonth
 
-    fun setCurrentMonth(month: YearMonth) {
-        _currentMonth.value = month
-    }
+    fun setCurrentMonth(month: YearMonth) { _currentMonth.value = month }
 
-    // Ngày đang được chọn
     private val _selectedDate = MutableLiveData<LocalDate>(LocalDate.now())
     val selectedDate: LiveData<LocalDate> = _selectedDate
 
-    // Tập hợp các ngày có sự kiện (để vẽ dấu chấm trên lịch)
+    // Import result để Activity hiển thị Toast phù hợp
+    private val _importResult = MutableLiveData<ImportResult?>()
+    val importResult: LiveData<ImportResult?> = _importResult
+
+    val eventDateColors: LiveData<Map<LocalDate, List<Int>>> =
+        combine(
+            repository.getEnabledEventStartTimes(),
+            repository.getAllSources()
+        ) { eventTimes, sources ->
+            val colorMap = sources.associate { it.id to it.color }
+            val zone = ZoneId.systemDefault()
+            eventTimes
+                .groupBy(
+                    keySelector = { Instant.ofEpochMilli(it.startTime).atZone(zone).toLocalDate() },
+                    valueTransform = { colorMap[it.sourceId] }
+                )
+                .mapValues { (_, colors) -> colors.filterNotNull().distinct() }
+        }.asLiveData()
+
     val eventDates: LiveData<Set<LocalDate>> =
         repository.getEnabledEventStartTimes()
-            .toLocalDateSet()
+            .map { items ->
+                val zone = ZoneId.systemDefault()
+                items.map { Instant.ofEpochMilli(it.startTime).atZone(zone).toLocalDate() }.toSet()
+            }.asLiveData()
+
+    val sourceColors: LiveData<Map<Int, Int>> =
+        repository.getAllSources()
+            .map { sources -> sources.associate { it.id to it.color } }
             .asLiveData()
 
-    // Danh sách sự kiện của ngày đang chọn — tự động cập nhật khi đổi ngày
     @OptIn(ExperimentalCoroutinesApi::class)
     val eventsForSelectedDate: LiveData<List<CalendarEvent>> =
         _selectedDate.toFlow()
             .flatMapLatest { date -> repository.getEventsForDay(date) }
             .asLiveData()
 
-    fun selectDate(date: LocalDate) {
-        _selectedDate.value = date
-    }
+    fun selectDate(date: LocalDate) { _selectedDate.value = date }
 
-    fun importIcsFile(uri: android.net.Uri, fileName: String) {
+    fun importIcsFile(uri: Uri, fileName: String) {
         viewModelScope.launch {
-            repository.importIcsFile(uri, fileName)
+            val result = repository.importIcsFile(uri, fileName)
+            _importResult.value = result
         }
     }
 
-    // Extension: chuyển Flow<List<Long>> thành Flow<Set<LocalDate>>
-    private fun Flow<List<Long>>.toLocalDateSet(): Flow<Set<LocalDate>> =
-        map { times ->
-            val zone = ZoneId.systemDefault()
-            times.map { epoch ->
-                java.time.Instant.ofEpochMilli(epoch).atZone(zone).toLocalDate()
-            }.toSet()
-        }
+    // Gọi sau khi Activity đã xử lý event để tránh re-trigger khi rotate
+    fun clearImportResult() { _importResult.value = null }
 
-    // Extension: chuyển LiveData<T> thành Flow<T>
     private fun <T> LiveData<T>.toFlow() =
         kotlinx.coroutines.flow.flow {
             val channel = kotlinx.coroutines.channels.Channel<T>()
