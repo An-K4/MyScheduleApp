@@ -4,6 +4,15 @@ My Schedule là một ứng dụng lịch dành cho Android, cho phép người 
 
 Đây là phiên bản **2.0.0** của ứng dụng.
 
+## 📸 Ảnh chụp màn hình
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/4918d3a5-6e38-48cf-819e-8e0f0a1776e9" width="24%"/>
+  <img src="https://github.com/user-attachments/assets/1b3064f1-b2c9-4c34-95d9-d365da053b02" width="24%"/>
+  <img src="https://github.com/user-attachments/assets/992caf14-3df8-431a-956e-7c98f68ebf78" width="24%"/>
+  <img src="https://github.com/user-attachments/assets/9ec077f9-0dcc-4aaf-a2bd-9ea76f204343" width="24%"/>
+</p>
+
 ## ✨ Tính năng chính
 
 ### Lịch & Sự kiện
@@ -62,15 +71,6 @@ app/src/main/java/com/example/myschedule/
 2. Mở dự án bằng Android Studio.
 3. Đợi Gradle đồng bộ hóa dependencies.
 4. Build và chạy trên máy ảo hoặc thiết bị thật (API 26+).
-
-## 📸 Ảnh chụp màn hình
-
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/4918d3a5-6e38-48cf-819e-8e0f0a1776e9" width="24%"/>
-  <img src="https://github.com/user-attachments/assets/1b3064f1-b2c9-4c34-95d9-d365da053b02" width="24%"/>
-  <img src="https://github.com/user-attachments/assets/992caf14-3df8-431a-956e-7c98f68ebf78" width="24%"/>
-  <img src="https://github.com/user-attachments/assets/9ec077f9-0dcc-4aaf-a2bd-9ea76f204343" width="24%"/>
-</p>
 
 ## 🤝 Đóng Góp
 
