@@ -17,8 +17,8 @@ interface CalendarEventDao {
         SELECT e.* FROM calendar_events e
         INNER JOIN calendar_sources s ON e.sourceId = s.id
         WHERE s.isEnabled = 1
-        AND e.startTime >= :dayStart
         AND e.startTime < :dayEnd
+        AND e.endTime > :dayStart
         ORDER BY e.startTime ASC
     """)
     fun getEventsForDay(dayStart: Long, dayEnd: Long): Flow<List<CalendarEvent>>

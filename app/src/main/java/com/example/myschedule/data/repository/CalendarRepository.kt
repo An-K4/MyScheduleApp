@@ -8,6 +8,7 @@ import com.example.myschedule.data.entity.CalendarEvent
 import com.example.myschedule.data.entity.CalendarSource
 import com.example.myschedule.receiver.NotificationScheduler
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import net.fortuna.ical4j.data.CalendarBuilder
 import net.fortuna.ical4j.model.component.VEvent
 import net.fortuna.ical4j.model.property.DtEnd
@@ -97,8 +98,12 @@ class CalendarRepository(private val context: Context) {
                             title = component.summary?.value ?: "Sự kiện",
                             startTime = dtStart.date.time,
                             endTime = dtEnd?.date?.time ?: dtStart.date.time,
-                            location = component.getProperty<net.fortuna.ical4j.model.property.Location>("LOCATION")?.value,
-                            description = component.getProperty<net.fortuna.ical4j.model.property.Description>("DESCRIPTION")?.value
+                            location = component.getProperty<net.fortuna.ical4j.model.property.Location>(
+                                "LOCATION"
+                            )?.value,
+                            description = component.getProperty<net.fortuna.ical4j.model.property.Description>(
+                                "DESCRIPTION"
+                            )?.value
                         )
                     )
                 }
@@ -115,7 +120,16 @@ class CalendarRepository(private val context: Context) {
         val zone = ZoneId.systemDefault()
         val dayStart = date.atStartOfDay(zone).toEpochSecond() * 1000
         val dayEnd = date.plusDays(1).atStartOfDay(zone).toEpochSecond() * 1000
+
         return eventDao.getEventsForDay(dayStart, dayEnd)
+            .map { events ->
+                events.map { event ->
+                    event.copy(
+                        startTime = maxOf(event.startTime, dayStart),
+                        endTime = minOf(event.endTime, dayEnd)
+                    )
+                }
+            }
     }
 
     fun getEnabledEventStartTimes(): Flow<List<EventTimeWithSource>> =
