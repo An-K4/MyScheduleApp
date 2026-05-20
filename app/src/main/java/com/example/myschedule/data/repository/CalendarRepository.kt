@@ -119,7 +119,7 @@ class CalendarRepository(private val context: Context) {
     fun getEventsForDay(date: LocalDate): Flow<List<CalendarEvent>> {
         val zone = ZoneId.systemDefault()
         val dayStart = date.atStartOfDay(zone).toEpochSecond() * 1000
-        val dayEnd = date.plusDays(1).atStartOfDay(zone).toEpochSecond() * 1000
+        val dayEnd = date.atTime(23, 59, 59).atZone(zone).toEpochSecond() * 1000
 
         return eventDao.getEventsForDay(dayStart, dayEnd)
             .map { events ->
@@ -132,6 +132,43 @@ class CalendarRepository(private val context: Context) {
             }
     }
 
-    fun getEnabledEventStartTimes(): Flow<List<EventTimeWithSource>> =
-        eventDao.getEnabledEventStartTimes()
+    fun getEnabledEventStartTimes(): Flow<List<EventTimeWithSource>> = eventDao.getEnabledEventStartTimes()
+
+    suspend fun ensureDefaultSource() {
+        val existing = sourceDao.getById(1)
+        if (existing == null) {
+            sourceDao.insert(
+                CalendarSource(
+                    id = 1,
+                    name = "Lịch của tôi",
+                    uri = "local",
+                    color = SOURCE_COLORS[0],
+                    isEnabled = true
+                )
+            )
+        }
+    }
+
+    suspend fun addEvent(event: CalendarEvent) {
+        eventDao.insertEvent(event)
+        if (event.reminderMinutes != null) {
+            NotificationScheduler.scheduleOne(context, event)
+        }
+    }
+
+    suspend fun updateEvent(event: CalendarEvent) {
+        eventDao.updateEvent(event)
+        NotificationScheduler.cancelOne(context, event)
+        if (event.reminderMinutes != null) {
+            NotificationScheduler.scheduleOne(context, event)
+        }
+    }
+
+    suspend fun deleteEvent(event: CalendarEvent) {
+        NotificationScheduler.cancelOne(context, event)
+        eventDao.deleteEvent(event)
+    }
+
+    suspend fun getEventById(eventId: Int): CalendarEvent? =
+        eventDao.getEventById(eventId)
 }

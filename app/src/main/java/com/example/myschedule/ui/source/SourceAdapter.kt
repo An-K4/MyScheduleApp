@@ -1,6 +1,7 @@
 package com.example.myschedule.ui.source
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -45,6 +46,8 @@ class SourceAdapter(
                 onToggle(source, isChecked)
             }
 
+            binding.btnDeleteSource.visibility =
+                if (source.uri == "local") View.GONE else View.VISIBLE
             binding.btnDeleteSource.setOnClickListener {
                 onDelete(source)
             }

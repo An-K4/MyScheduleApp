@@ -69,6 +69,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             .flatMapLatest { date -> repository.getEventsForDay(date) }
             .asLiveData()
 
+    init {
+        viewModelScope.launch {
+            repository.ensureDefaultSource()
+        }
+    }
+
     fun selectDate(date: LocalDate) { _selectedDate.value = date }
 
     fun importIcsFile(uri: Uri, fileName: String) {
@@ -94,4 +100,24 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 removeObserver(observer)
             }
         }
+
+    fun addManualEvent(event: CalendarEvent) {
+        viewModelScope.launch { repository.addEvent(event) }
+    }
+
+    fun updateEvent(event: CalendarEvent) {
+        viewModelScope.launch { repository.updateEvent(event) }
+    }
+
+    fun deleteEvent(event: CalendarEvent) {
+        viewModelScope.launch { repository.deleteEvent(event) }
+    }
+
+    fun getEventById(eventId: Int): LiveData<CalendarEvent?> {
+        val result = MutableLiveData<CalendarEvent?>()
+        viewModelScope.launch {
+            result.value = repository.getEventById(eventId)
+        }
+        return result
+    }
 }
