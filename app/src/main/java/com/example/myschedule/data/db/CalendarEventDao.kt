@@ -10,6 +10,28 @@ interface CalendarEventDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(events: List<CalendarEvent>)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertEvent(event: CalendarEvent): Long
+
+    @Update
+    suspend fun updateEvent(event: CalendarEvent)
+
+    @Delete
+    suspend fun deleteEvent(event: CalendarEvent)
+
+    @Query("SELECT * FROM calendar_events WHERE id = :eventId")
+    suspend fun getEventById(eventId: Int): CalendarEvent?
+
+    @Query("""
+    SELECT e.* FROM calendar_events e
+    INNER JOIN calendar_sources s ON e.sourceId = s.id
+    WHERE s.isEnabled = 1
+    AND e.startTime < :yearEnd
+    AND e.endTime > :yearStart
+    ORDER BY e.startTime ASC
+""")
+    fun getEnabledEventsForYear(yearStart: Long, yearEnd: Long): Flow<List<CalendarEvent>>
+
     @Query("DELETE FROM calendar_events WHERE sourceId = :sourceId")
     suspend fun deleteBySourceId(sourceId: Int)
 

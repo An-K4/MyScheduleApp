@@ -24,5 +24,6 @@ data class CalendarEvent(
     val startTime: Long,
     val endTime: Long,
     val location: String? = null,
-    val description: String? = null
+    val description: String? = null,
+    val reminderMinutes: Long? = null
 )

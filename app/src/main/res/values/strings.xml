@@ -3,4 +3,6 @@
     <string name="default_month">Tháng 1</string>
     <string name="day_event">Sự kiện trong ngày</string>
     <string name="no_event">Không có sự kiện nào</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

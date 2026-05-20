@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_month"
+        android:icon="@drawable/ic_month"
+        android:title="Tháng" />
+
+    <item
+        android:id="@+id/nav_day"
+        android:icon="@drawable/ic_day"
+        android:title="Ngày" />
+
+    <item
+        android:id="@+id/nav_year"
+        android:icon="@drawable/ic_year"
+        android:title="Năm" />
+
+    <item
+        android:id="@+id/nav_agenda"
+        android:icon="@drawable/ic_agenda"
+        android:title="Lịch biểu" />
+
+</menu>
