@@ -171,4 +171,6 @@ class CalendarRepository(private val context: Context) {
 
     suspend fun getEventById(eventId: Int): CalendarEvent? =
         eventDao.getEventById(eventId)
+
+    suspend fun getSourceById(id: Int): CalendarSource? = sourceDao.getById(id)
 }

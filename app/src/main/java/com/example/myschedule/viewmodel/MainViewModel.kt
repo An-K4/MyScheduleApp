@@ -120,4 +120,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         return result
     }
+
+    fun getSourceName(sourceId: Int): LiveData<String> {
+        val result = MutableLiveData<String>()
+        viewModelScope.launch {
+            val source = repository.getSourceById(sourceId)
+            result.value = source?.name ?: "Không rõ nguồn"
+        }
+        return result
+    }
 }

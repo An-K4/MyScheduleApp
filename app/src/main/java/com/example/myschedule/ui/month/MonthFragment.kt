@@ -15,6 +15,7 @@ import com.example.myschedule.data.entity.CalendarEvent
 import com.example.myschedule.databinding.CalendarDayLayoutBinding
 import com.example.myschedule.databinding.CalendarHeaderLayoutBinding
 import com.example.myschedule.databinding.FragmentMonthBinding
+import com.example.myschedule.ui.event.EventDetailFragment
 import com.example.myschedule.ui.main.EventAdapter
 import com.example.myschedule.ui.main.MainActivity
 import com.example.myschedule.viewmodel.MainViewModel
@@ -221,14 +222,9 @@ class MonthFragment : Fragment() {
     }
 
     private fun showEventDetail(event: CalendarEvent) {
-        // 2.5 — Tạm thời dùng Dialog, Phase 4 sẽ thay bằng EventDetailFragment
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-            .setTitle(event.title)
-            .setMessage(buildString {
-                if (!event.location.isNullOrBlank()) appendLine("📍 ${event.location}\n")
-                append(event.description ?: "Không có mô tả chi tiết.")
-            })
-            .setPositiveButton("Đóng") { dialog, _ -> dialog.dismiss() }
-            .show()
+        (activity as? MainActivity)?.showFragment(
+            EventDetailFragment.newInstance(event.id),
+            "EVENT_DETAIL"
+        )
     }
 }
