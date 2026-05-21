@@ -105,10 +105,19 @@ class AgendaFragment : Fragment() {
     }
 
     private fun observeViewModel() {
+        // Observe sourceColors riêng để update màu khi source thay đổi
+        viewModel.sourceColors.observe(viewLifecycleOwner) { colors ->
+            // Chỉ update màu, không rebuild toàn bộ list
+            agendaAdapter.updateColors(colors)
+        }
+
         viewModel.currentMonth.observe(viewLifecycleOwner) { month ->
-            currentYear = month.year
-            loadAgendaForYear(currentYear)
-            yearAdapter.submitData(generateYearList(), currentYear)
+            if (month.year != currentYear) {
+                currentYear = month.year
+                loadAgendaForYear(currentYear)
+                yearAdapter.submitData(generateYearList(), currentYear)
+                scrollYearToCenter(currentYear)
+            }
         }
     }
 
@@ -120,34 +129,42 @@ class AgendaFragment : Fragment() {
     private fun loadAgendaForYear(year: Int) {
         val zone = ZoneId.systemDefault()
         val yearStart = YearMonth.of(year, 1).atDay(1).atStartOfDay(zone).toInstant().toEpochMilli()
-        val yearEnd =
-            YearMonth.of(year, 12).atEndOfMonth().atTime(23, 59, 59).atZone(zone).toInstant()
-                .toEpochMilli()
+        val yearEnd = YearMonth.of(year, 12).atEndOfMonth().atTime(23, 59, 59).atZone(zone).toInstant().toEpochMilli()
 
+        // Observe cả 2 LiveData cùng lúc, không lồng nhau
         viewModel.getEventsForYearRange(yearStart, yearEnd).observe(viewLifecycleOwner) { events ->
-            if (events.isEmpty()) {
-                binding.tvNoEvent.visibility = View.VISIBLE
-                binding.rvAgenda.visibility = View.GONE
-                return@observe
-            }
+            updateAgendaUI(events, yearStart, yearEnd, zone)
+        }
+    }
 
-            binding.tvNoEvent.visibility = View.GONE
-            binding.rvAgenda.visibility = View.VISIBLE
+    private fun updateAgendaUI(
+        events: List<CalendarEvent>,
+        yearStart: Long,
+        yearEnd: Long,
+        zone: ZoneId
+    ) {
+        if (events.isEmpty()) {
+            binding.tvNoEvent.visibility = View.VISIBLE
+            binding.rvAgenda.visibility = View.GONE
+            return
+        }
 
-            // Group events theo ngày + xử lý multi-day
-            val agendaItems = buildAgendaItems(events, yearStart, yearEnd, zone)
+        binding.tvNoEvent.visibility = View.GONE
+        binding.rvAgenda.visibility = View.VISIBLE
 
-            viewModel.sourceColors.observe(viewLifecycleOwner) { colors ->
-                agendaAdapter.submitData(agendaItems, colors)
+        val agendaItems = buildAgendaItems(events, yearStart, yearEnd, zone)
+        val colors = viewModel.sourceColors.value ?: emptyMap()
 
-                // Auto scroll đến hôm nay
-                val todayItem = AgendaItem(AgendaItem.TYPE_DATE_HEADER, LocalDate.now())
-                val todayPosition = agendaItems.indexOf(todayItem)
-                if (todayPosition >= 0) {
-                    binding.rvAgenda.post {
-                        (binding.rvAgenda.layoutManager as? LinearLayoutManager)
-                            ?.scrollToPositionWithOffset(todayPosition, 0)
-                    }
+        agendaAdapter.submitData(agendaItems, colors)
+
+        // Auto scroll đến hôm nay (chỉ scroll 1 lần)
+        if (agendaItems.isNotEmpty()) {
+            val todayItem = AgendaItem(AgendaItem.TYPE_DATE_HEADER, LocalDate.now())
+            val todayPosition = agendaItems.indexOf(todayItem)
+            if (todayPosition >= 0) {
+                binding.rvAgenda.post {
+                    (binding.rvAgenda.layoutManager as? LinearLayoutManager)
+                        ?.scrollToPositionWithOffset(todayPosition, 0)
                 }
             }
         }

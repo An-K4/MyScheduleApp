@@ -89,4 +89,9 @@ class AgendaAdapter(
         sourceColors = colors
         notifyDataSetChanged()
     }
+
+    fun updateColors(colors: Map<Int, Int>) {
+        sourceColors = colors
+        notifyDataSetChanged()
+    }
 }
