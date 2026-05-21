@@ -1,13 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.year.YearFragment">
+    android:orientation="vertical"
+    android:background="?attr/appBackground">
 
-    <TextView
+    <!-- Header năm -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <ImageButton
+            android:id="@+id/btnPrevYear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_back"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:layout_centerVertical="true"
+            android:contentDescription="Năm trước"/>
+
+        <TextView
+            android:id="@+id/tvYearHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textColor="?attr/textPrimary"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            tools:text="Năm 2025"/>
+
+        <ImageButton
+            android:id="@+id/btnNextYear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_back"
+            android:rotation="180"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="Năm sau"/>
+
+    </RelativeLayout>
+
+    <!-- Grid 12 tháng -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvMonths"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:padding="8dp"/>
 
-</FrameLayout>
+</LinearLayout>

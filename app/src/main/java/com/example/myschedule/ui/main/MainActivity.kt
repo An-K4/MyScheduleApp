@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         private const val KEY_DARK_MODE = "dark_mode"
     }
 
-    private lateinit var binding: ActivityMainBinding
+    lateinit var binding: ActivityMainBinding
     val viewModel: MainViewModel by viewModels()
 
     private val requestPermissionLauncher =
