@@ -129,4 +129,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         return result
     }
+
+    fun getEventsForYearRange(yearStart: Long, yearEnd: Long): LiveData<List<CalendarEvent>> {
+        return repository.getEventsForYearRange(yearStart, yearEnd).asLiveData()
+    }
 }

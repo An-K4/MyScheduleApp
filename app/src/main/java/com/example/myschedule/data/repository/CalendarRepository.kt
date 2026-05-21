@@ -173,4 +173,7 @@ class CalendarRepository(private val context: Context) {
         eventDao.getEventById(eventId)
 
     suspend fun getSourceById(id: Int): CalendarSource? = sourceDao.getById(id)
+
+    fun getEventsForYearRange(yearStart: Long, yearEnd: Long): Flow<List<CalendarEvent>> =
+        eventDao.getEnabledEventsForYear(yearStart, yearEnd)
 }
