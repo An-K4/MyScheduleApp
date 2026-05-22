@@ -32,6 +32,18 @@
             android:textStyle="bold"
             tools:text="Thứ Ba, 19 tháng 5"/>
 
+        <TextView
+            android:id="@+id/tvLunarHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/tvDayHeader"
+            android:paddingTop="16dp"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="12sp"
+            android:alpha="0.7"
+            android:layout_marginTop="2dp"/>
+
         <ImageButton
             android:id="@+id/btnNextDay"
             android:layout_width="wrap_content"

@@ -12,6 +12,7 @@ import com.example.myschedule.databinding.FragmentDayBinding
 import com.example.myschedule.ui.event.EventDetailFragment
 import com.example.myschedule.ui.main.EventAdapter
 import com.example.myschedule.ui.main.MainActivity
+import com.example.myschedule.util.LunarCalendarUtil
 import com.example.myschedule.viewmodel.MainViewModel
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -80,13 +81,15 @@ class DayFragment : Fragment() {
     }
 
     private fun updateHeader(date: LocalDate) {
-        // Format: "Thứ Ba, 19 tháng 5"
         val dayOfWeek = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale("vi"))
         val day = date.dayOfMonth
         val month = date.monthValue
 
-        val headerText = "$dayOfWeek, $day tháng $month"
-        binding.tvDayHeader.text = headerText
+        val lunar = LunarCalendarUtil.toLunarDateShort(date)
+
+        // Format: "Thứ Ba, 19 tháng 5 • 15/4 âl"
+        binding.tvDayHeader.text = "$dayOfWeek, $day tháng $month"
+        binding.tvLunarHeader.text = "Ngày $lunar âm lịch"
     }
 
     private fun updateEventList(events: List<CalendarEvent>) {

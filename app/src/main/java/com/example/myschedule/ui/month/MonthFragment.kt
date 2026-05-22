@@ -18,6 +18,7 @@ import com.example.myschedule.databinding.FragmentMonthBinding
 import com.example.myschedule.ui.event.EventDetailFragment
 import com.example.myschedule.ui.main.EventAdapter
 import com.example.myschedule.ui.main.MainActivity
+import com.example.myschedule.util.LunarCalendarUtil
 import com.example.myschedule.viewmodel.MainViewModel
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.CalendarMonth
@@ -136,6 +137,7 @@ class MonthFragment : Fragment() {
             override fun bind(container: DayViewContainer, data: CalendarDay) {
                 container.day = data
                 val textView = container.dayBinding.tvDayText
+                val lunarView = container.dayBinding.tvLunarDay
                 val dotsContainer = container.dayBinding.dotsContainer
                 val rootView = container.view
 
@@ -143,11 +145,17 @@ class MonthFragment : Fragment() {
 
                 if (data.position == DayPosition.MonthDate) {
                     textView.visibility = View.VISIBLE
+                    lunarView.visibility = View.VISIBLE
+
+                    // Hiển thị ngày âm
+                    lunarView.text = LunarCalendarUtil.toLunarDateShort(data.date)
+
                     renderEventDots(dotsContainer, data.date)
 
                     if (data.date == selectedDate) {
                         rootView.setBackgroundResource(R.drawable.selected_day_background)
                         textView.setTextColor(resources.getColor(R.color.white, null))
+                        lunarView.setTextColor(resources.getColor(R.color.white, null))
                     } else {
                         rootView.background = null
                         textView.setTextColor(
@@ -156,9 +164,16 @@ class MonthFragment : Fragment() {
                             else
                                 getThemeColor(com.google.android.material.R.attr.colorOnBackground)
                         )
+                        lunarView.setTextColor(
+                            if (data.date.dayOfWeek == DayOfWeek.SUNDAY)
+                                resources.getColor(R.color.sunday_text_color, null)
+                            else
+                                android.graphics.Color.GRAY
+                        )
                     }
                 } else {
                     textView.visibility = View.INVISIBLE
+                    lunarView.visibility = View.INVISIBLE
                     dotsContainer.removeAllViews()
                 }
             }
