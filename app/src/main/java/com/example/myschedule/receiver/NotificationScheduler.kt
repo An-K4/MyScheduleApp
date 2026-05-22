@@ -8,15 +8,15 @@ import com.example.myschedule.data.entity.CalendarEvent
 
 object NotificationScheduler {
 
-    private const val NOTIFY_BEFORE_MS = 30 * 60 * 1000L  // 30 phút
-
     fun scheduleAll(context: Context, events: List<CalendarEvent>) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val now = System.currentTimeMillis()
 
         events.forEach { event ->
-            val triggerAt = event.startTime - NOTIFY_BEFORE_MS
-            // Bỏ qua sự kiện đã qua hoặc sắp xảy ra trong vòng < 30 phút
+            // ── MỚI: skip nếu user tắt thông báo (null) ──
+            val reminderMs = event.reminderMinutes?.let { it * 60 * 1000L } ?: return@forEach
+
+            val triggerAt = event.startTime - reminderMs
             if (triggerAt <= now) return@forEach
 
             val intent = Intent(context, NotificationReceiver::class.java).apply {
@@ -31,20 +31,9 @@ object NotificationScheduler {
             )
 
             try {
-                // setExactAndAllowWhileIdle để thông báo bắn đúng giờ kể cả khi Doze
-                alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    triggerAt,
-                    pendingIntent
-                )
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
             } catch (e: SecurityException) {
-                // Android 12+ cần permission SCHEDULE_EXACT_ALARM
-                // Fallback sang set() thông thường nếu không có quyền
-                alarmManager.set(
-                    AlarmManager.RTC_WAKEUP,
-                    triggerAt,
-                    pendingIntent
-                )
+                alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
             }
         }
     }

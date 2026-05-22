@@ -91,6 +91,23 @@ class CalendarRepository(private val context: Context) {
                     val dtEnd = component.getProperty<DtEnd>("DTEND")
                     val uid = component.getProperty<Uid>("UID")?.value ?: component.toString()
 
+                    // ── MỚI: Parse VALARM ──────────────────────────────────────
+                    val reminderMinutes: Long? = try {
+                        val valarm = component.getComponents<net.fortuna.ical4j.model.component.VAlarm>("VALARM")
+                            .firstOrNull()
+                        val trigger = valarm?.getProperty<net.fortuna.ical4j.model.property.Trigger>("TRIGGER")
+                        val duration = trigger?.duration  // net.fortuna.ical4j.model.TemporalAmountAdapter
+                        // TRIGGER thường là âm (trước sự kiện), ví dụ -PT30M
+                        // Ta lấy giá trị tuyệt đối tính theo phút
+                        duration?.let {
+                            val totalSeconds = java.time.Duration.from(it).abs().seconds
+                            if (totalSeconds > 0) totalSeconds / 60 else 30L
+                        } ?: 30L   // Không có VALARM → mặc định 30 phút
+                    } catch (e: Exception) {
+                        30L        // Parse lỗi → fallback 30 phút
+                    }
+                    // ───────────────────────────────────────────────────────────
+
                     events.add(
                         CalendarEvent(
                             sourceId = sourceId,
@@ -98,12 +115,9 @@ class CalendarRepository(private val context: Context) {
                             title = component.summary?.value ?: "Sự kiện",
                             startTime = dtStart.date.time,
                             endTime = dtEnd?.date?.time ?: dtStart.date.time,
-                            location = component.getProperty<net.fortuna.ical4j.model.property.Location>(
-                                "LOCATION"
-                            )?.value,
-                            description = component.getProperty<net.fortuna.ical4j.model.property.Description>(
-                                "DESCRIPTION"
-                            )?.value
+                            location = component.getProperty<net.fortuna.ical4j.model.property.Location>("LOCATION")?.value,
+                            description = component.getProperty<net.fortuna.ical4j.model.property.Description>("DESCRIPTION")?.value,
+                            reminderMinutes = reminderMinutes
                         )
                     )
                 }
