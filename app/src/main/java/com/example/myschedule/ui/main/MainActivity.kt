@@ -51,17 +51,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         onBackPressedDispatcher.addCallback(this) {
             when {
-                binding.drawerLayout.isDrawerOpen(GravityCompat.START) ->
+                binding.drawerLayout.isDrawerOpen(GravityCompat.START) -> {
                     binding.drawerLayout.closeDrawer(GravityCompat.START)
-                supportFragmentManager.backStackEntryCount > 1 ->
+                }
+                supportFragmentManager.backStackEntryCount > 0 -> {
                     supportFragmentManager.popBackStack()
-                else -> finish()
+                }
+                else -> {
+                    finish()
+                }
             }
         }
 
         // Load MonthFragment mặc định
         if (savedInstanceState == null) {
-            showFragment(MonthFragment(), "MONTH")
+            switchTab(MonthFragment(), "MONTH")
             binding.navigationView.setCheckedItem(R.id.nav_month)
         }
     }
@@ -109,7 +113,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // 1.8 — Nút + → AddEditEventFragment
         binding.btnAddEvent.setOnClickListener {
-            showFragment(AddEditEventFragment.newInstance(), "ADD_EDIT_EVENT")
+            pushFragment(AddEditEventFragment.newInstance(), "ADD_EDIT_EVENT")
         }
     }
 
@@ -121,12 +125,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_agenda -> AgendaFragment()
             else -> return false
         }
-        showFragment(fragment, item.itemId.toString())
+        switchTab(fragment, item.itemId.toString())
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
 
-    fun showFragment(fragment: Fragment, tag: String) {
+    fun switchTab(fragment: Fragment, tag: String) {
+        // Xóa toàn bộ backstack
+        repeat(supportFragmentManager.backStackEntryCount) {
+            supportFragmentManager.popBackStackImmediate()
+        }
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, fragment, tag)
+            .commit()
+    }
+
+    fun pushFragment(fragment: Fragment, tag: String) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, fragment, tag)
             .addToBackStack(tag)

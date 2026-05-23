@@ -237,7 +237,7 @@ class MonthFragment : Fragment() {
     }
 
     private fun showEventDetail(event: CalendarEvent) {
-        (activity as? MainActivity)?.showFragment(
+        (activity as? MainActivity)?.switchTab(
             EventDetailFragment.newInstance(event.id),
             "EVENT_DETAIL"
         )

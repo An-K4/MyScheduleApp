@@ -49,7 +49,7 @@ class YearFragment : Fragment() {
         adapter = MiniMonthAdapter { month ->
             // 6.5 — Click tháng → chuyển MonthFragment + scroll tới tháng đó
             viewModel.setCurrentMonth(month)
-            (activity as? MainActivity)?.showFragment(MonthFragment(), "MONTH")
+            (activity as? MainActivity)?.switchTab(MonthFragment(), "MONTH")
             (activity as? MainActivity)?.binding?.navigationView?.setCheckedItem(R.id.nav_month)
         }
 

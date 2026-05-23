@@ -74,7 +74,7 @@ class AgendaFragment : Fragment() {
         agendaAdapter = AgendaAdapter { item ->
             if (item.type == AgendaItem.TYPE_EVENT) {
                 item.event?.let { event ->
-                    (activity as? MainActivity)?.showFragment(
+                    (activity as? MainActivity)?.switchTab(
                         EventDetailFragment.newInstance(event.id),
                         "EVENT_DETAIL"
                     )
