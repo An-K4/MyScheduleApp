@@ -38,24 +38,45 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     val eventDateColors: LiveData<Map<LocalDate, List<Int>>> =
         combine(
-            repository.getEnabledEventStartTimes(),
+            repository.getEnabledEventTimes(),
             repository.getAllSources()
         ) { eventTimes, sources ->
             val colorMap = sources.associate { it.id to it.color }
             val zone = ZoneId.systemDefault()
-            eventTimes
-                .groupBy(
-                    keySelector = { Instant.ofEpochMilli(it.startTime).atZone(zone).toLocalDate() },
-                    valueTransform = { colorMap[it.sourceId] }
-                )
-                .mapValues { (_, colors) -> colors.filterNotNull().distinct() }
+            val result = mutableMapOf<LocalDate, MutableList<Int>>()
+
+            eventTimes.forEach { item ->
+                val startDate = Instant.ofEpochMilli(item.startTime).atZone(zone).toLocalDate()
+                val endDate = Instant.ofEpochMilli(item.endTime).atZone(zone).toLocalDate()
+                val color = colorMap[item.sourceId] ?: return@forEach
+
+                var cursor = startDate
+                while (!cursor.isAfter(endDate)) {
+                    result.getOrPut(cursor) { mutableListOf() }.let {
+                        if (!it.contains(color)) it.add(color)
+                    }
+                    cursor = cursor.plusDays(1)
+                }
+            }
+            result
         }.asLiveData()
 
+
     val eventDates: LiveData<Set<LocalDate>> =
-        repository.getEnabledEventStartTimes()
+        repository.getEnabledEventTimes()
             .map { items ->
                 val zone = ZoneId.systemDefault()
-                items.map { Instant.ofEpochMilli(it.startTime).atZone(zone).toLocalDate() }.toSet()
+                val dates = mutableSetOf<LocalDate>()
+                items.forEach { item ->
+                    val startDate = Instant.ofEpochMilli(item.startTime).atZone(zone).toLocalDate()
+                    val endDate = Instant.ofEpochMilli(item.endTime).atZone(zone).toLocalDate()
+                    var cursor = startDate
+                    while (!cursor.isAfter(endDate)) {
+                        dates.add(cursor)
+                        cursor = cursor.plusDays(1)
+                    }
+                }
+                dates
             }.asLiveData()
 
     val sourceColors: LiveData<Map<Int, Int>> =

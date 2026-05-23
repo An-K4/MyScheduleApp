@@ -146,7 +146,8 @@ class CalendarRepository(private val context: Context) {
             }
     }
 
-    fun getEnabledEventStartTimes(): Flow<List<EventTimeWithSource>> = eventDao.getEnabledEventStartTimes()
+    fun getEnabledEventTimes(): Flow<List<EventTimeWithSource>> =
+        eventDao.getEnabledEventTimes()
 
     suspend fun ensureDefaultSource() {
         val existing = sourceDao.getById(1)

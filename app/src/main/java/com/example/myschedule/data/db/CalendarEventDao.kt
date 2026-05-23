@@ -45,13 +45,12 @@ interface CalendarEventDao {
     """)
     fun getEventsForDay(dayStart: Long, dayEnd: Long): Flow<List<CalendarEvent>>
 
-    // 6.3 — Trả startTime + sourceId để ViewModel map sang màu sắc
     @Query("""
-        SELECT e.startTime, e.sourceId FROM calendar_events e
-        INNER JOIN calendar_sources s ON e.sourceId = s.id
-        WHERE s.isEnabled = 1
-    """)
-    fun getEnabledEventStartTimes(): Flow<List<EventTimeWithSource>>
+    SELECT e.startTime, e.endTime, e.sourceId FROM calendar_events e
+    INNER JOIN calendar_sources s ON e.sourceId = s.id
+    WHERE s.isEnabled = 1
+""")
+    fun getEnabledEventTimes(): Flow<List<EventTimeWithSource>>
 
     @Query("SELECT * FROM calendar_events WHERE sourceId = :sourceId")
     suspend fun getEventsBySourceId(sourceId: Int): List<CalendarEvent>
