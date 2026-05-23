@@ -73,16 +73,14 @@ class EventDetailFragment : Fragment() {
 
         viewModel.getEventById(eventId).observe(viewLifecycleOwner) { event ->
             if (event == null) {
-                parentFragmentManager.popBackStack()
-                return@observe
+                parentFragmentManager.popBackStack(); return@observe
             }
             currentEvent = event
             bindEvent(event)
+        }
 
-            // Parse tên nguồn
-            viewModel.getSourceName(event.sourceId).observe(viewLifecycleOwner) { name ->
-                binding.tvSource.text = "📁 Nguồn: $name"
-            }
+        viewModel.getSourceNameForEvent(eventId).observe(viewLifecycleOwner) { name ->
+            binding.tvSource.text = "Nguồn: $name"
         }
 
         setupClickListeners()
@@ -184,7 +182,8 @@ class EventDetailFragment : Fragment() {
         val event = currentEvent ?: return
         val title = binding.etTitle.text?.toString()?.trim()
         if (title.isNullOrBlank()) {
-            Toast.makeText(requireContext(), "Tên sự kiện không được để trống", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Tên sự kiện không được để trống", Toast.LENGTH_SHORT)
+                .show()
             return
         }
 
@@ -193,7 +192,11 @@ class EventDetailFragment : Fragment() {
         val endMillis = endDate.atTime(endTime).atZone(zone).toInstant().toEpochMilli()
 
         if (endMillis <= startMillis) {
-            Toast.makeText(requireContext(), "Thời gian kết thúc phải sau thời gian bắt đầu", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "Thời gian kết thúc phải sau thời gian bắt đầu",
+                Toast.LENGTH_SHORT
+            ).show()
             return
         }
 
