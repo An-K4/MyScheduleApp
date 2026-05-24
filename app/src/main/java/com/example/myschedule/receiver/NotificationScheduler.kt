@@ -61,6 +61,7 @@ object NotificationScheduler {
         val intent = Intent(context, NotificationReceiver::class.java).apply {
             putExtra(NotificationReceiver.EVENT_TITLE_KEY, event.title)
             putExtra(NotificationReceiver.NOTIFICATION_ID_KEY, event.uid.hashCode())
+            putExtra(NotificationReceiver.REMINDER_MINUTES_KEY, event.reminderMinutes)
         }
         val pendingIntent = PendingIntent.getBroadcast(
             context,
