@@ -121,11 +121,68 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="4dp"/>
 
-            <Spinner
-                android:id="@+id/spinnerReminder"
+            <CheckBox
+                android:id="@+id/checkboxDisableNotification"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"/>
+                android:text="Tắt thông báo"
+                android:textColor="?attr/textPrimary"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Container ẩn/hiện theo checkbox -->
+            <LinearLayout
+                android:id="@+id/layoutNotification"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Thời lượng"
+                    android:layout_marginBottom="8dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edNotificationDuration"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:text="30"
+                        android:textColor="?attr/textPrimary"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <RadioGroup
+                    android:id="@+id/rgReminderUnit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/rbMinute"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="Phút" />
+
+                    <RadioButton
+                        android:id="@+id/rbHour"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Giờ" />
+
+                    <RadioButton
+                        android:id="@+id/rbDay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ngày" />
+
+                    <RadioButton
+                        android:id="@+id/rbWeek"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tuần" />
+                </RadioGroup>
+            </LinearLayout>
 
             <!-- Địa điểm -->
             <com.google.android.material.textfield.TextInputLayout

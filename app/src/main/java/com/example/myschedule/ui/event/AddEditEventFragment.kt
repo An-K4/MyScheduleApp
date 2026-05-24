@@ -6,10 +6,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.example.myschedule.R
 import com.example.myschedule.data.entity.CalendarEvent
 import com.example.myschedule.databinding.FragmentAddEditEventBinding
 import com.example.myschedule.viewmodel.MainViewModel
@@ -27,16 +27,6 @@ class AddEditEventFragment : Fragment() {
 
         private val DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy")
         private val TIME_FMT = DateTimeFormatter.ofPattern("HH:mm")
-
-        // Spinner options: label → minutes (null = tắt)
-        private val REMINDER_OPTIONS = listOf(
-            "Tắt thông báo" to null,
-            "5 phút trước" to 5L,
-            "15 phút trước" to 15L,
-            "30 phút trước" to 30L,
-            "1 giờ trước" to 60L,
-            "1 ngày trước" to 1440L
-        )
     }
 
     private var _binding: FragmentAddEditEventBinding? = null
@@ -58,7 +48,6 @@ class AddEditEventFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupSpinner()
         updateDateTimeViews()
         setupClickListeners()
     }
@@ -66,17 +55,6 @@ class AddEditEventFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    private fun setupSpinner() {
-        val labels = REMINDER_OPTIONS.map { it.first }
-        val adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            labels
-        ).also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
-        binding.spinnerReminder.adapter = adapter
-        binding.spinnerReminder.setSelection(3) // mặc định 30 phút
     }
 
     private fun updateDateTimeViews() {
@@ -100,6 +78,10 @@ class AddEditEventFragment : Fragment() {
         // Time pickers
         binding.tvStartTime.setOnClickListener { showTimePicker(isStart = true) }
         binding.tvEndTime.setOnClickListener { showTimePicker(isStart = false) }
+
+        binding.checkboxDisableNotification.setOnCheckedChangeListener { _, isChecked ->
+            binding.layoutNotification.visibility = if (isChecked) View.GONE else View.VISIBLE
+        }
 
         // Lưu
         binding.btnSave.setOnClickListener { saveEvent() }
@@ -165,8 +147,6 @@ class AddEditEventFragment : Fragment() {
         val startMillis = start.atZone(zone).toInstant().toEpochMilli()
         val endMillis = end.atZone(zone).toInstant().toEpochMilli()
 
-        val reminderMinutes = REMINDER_OPTIONS[binding.spinnerReminder.selectedItemPosition].second
-
         val event = CalendarEvent(
             sourceId = 1, // "Lịch của tôi"
             uid = UUID.randomUUID().toString(),
@@ -175,7 +155,7 @@ class AddEditEventFragment : Fragment() {
             endTime = endMillis,
             location = binding.etLocation.text?.toString()?.trim()?.ifBlank { null },
             description = binding.etDescription.text?.toString()?.trim()?.ifBlank { null },
-            reminderMinutes = reminderMinutes
+            reminderMinutes = getReminderMinutes()
         )
 
         viewModel.addManualEvent(event)
@@ -183,5 +163,19 @@ class AddEditEventFragment : Fragment() {
 
         // 3.12 — popBackStack
         parentFragmentManager.popBackStack()
+    }
+
+    private fun getReminderMinutes(): Long? {
+        if (binding.checkboxDisableNotification.isChecked) return null
+
+        val duration = binding.edNotificationDuration.text
+            ?.toString()?.trim()?.toLongOrNull() ?: 0L
+
+        return when (binding.rgReminderUnit.checkedRadioButtonId) {
+            R.id.rbHour -> duration * 60
+            R.id.rbDay -> duration * 60 * 24
+            R.id.rbWeek -> duration * 60 * 24 * 7
+            else -> duration // phút
+        }
     }
 }

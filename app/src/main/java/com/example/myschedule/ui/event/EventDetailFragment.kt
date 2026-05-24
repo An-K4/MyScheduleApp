@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -27,15 +26,6 @@ class EventDetailFragment : Fragment() {
         private const val ARG_EVENT_ID = "event_id"
         private val DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy")
         private val TIME_FMT = DateTimeFormatter.ofPattern("HH:mm")
-
-        private val REMINDER_OPTIONS = listOf(
-            "Tắt thông báo" to null,
-            "5 phút trước" to 5L,
-            "15 phút trước" to 15L,
-            "30 phút trước" to 30L,
-            "1 giờ trước" to 60L,
-            "1 ngày trước" to 1440L
-        )
 
         fun newInstance(eventId: Int) = EventDetailFragment().apply {
             arguments = Bundle().apply { putInt(ARG_EVENT_ID, eventId) }
@@ -69,8 +59,6 @@ class EventDetailFragment : Fragment() {
             return
         }
 
-        setupSpinner()
-
         viewModel.getEventById(eventId).observe(viewLifecycleOwner) { event ->
             if (event == null) {
                 parentFragmentManager.popBackStack(); return@observe
@@ -91,17 +79,6 @@ class EventDetailFragment : Fragment() {
         _binding = null
     }
 
-    private fun setupSpinner() {
-        val labels = REMINDER_OPTIONS.map { it.first }
-        val adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            labels
-        ).also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
-        binding.spinnerReminder.adapter = adapter
-        binding.spinnerReminder.isEnabled = false
-    }
-
     private fun bindEvent(event: CalendarEvent) {
         val zone = ZoneId.systemDefault()
         val start = Instant.ofEpochMilli(event.startTime).atZone(zone)
@@ -118,10 +95,36 @@ class EventDetailFragment : Fragment() {
 
         updateDateTimeViews()
 
-        // Spinner thông báo — fallback 30 phút nếu null
-        val reminderMinutes = event.reminderMinutes ?: 30L
-        val idx = REMINDER_OPTIONS.indexOfFirst { it.second == reminderMinutes }
-        binding.spinnerReminder.setSelection(if (idx >= 0) idx else 3)
+        // Xóa đoạn Spinner cũ, thay bằng:
+        val reminderMinutes = event.reminderMinutes
+        if (reminderMinutes == null) {
+            binding.checkboxDisableNotification.isChecked = true
+            binding.layoutNotification.visibility = View.GONE
+        } else {
+            binding.checkboxDisableNotification.isChecked = false
+            binding.layoutNotification.visibility = View.VISIBLE
+
+            when {
+                reminderMinutes % (60 * 24 * 7) == 0L -> {
+                    binding.edNotificationDuration.setText((reminderMinutes / (60 * 24 * 7)).toString())
+                    binding.rgReminderUnit.check(R.id.rbWeek)
+                }
+                reminderMinutes % (60 * 24) == 0L -> {
+                    binding.edNotificationDuration.setText((reminderMinutes / (60 * 24)).toString())
+                    binding.rgReminderUnit.check(R.id.rbDay)
+                }
+                reminderMinutes % 60 == 0L -> {
+                    binding.edNotificationDuration.setText((reminderMinutes / 60).toString())
+                    binding.rgReminderUnit.check(R.id.rbHour)
+                }
+                else -> {
+                    binding.edNotificationDuration.setText(reminderMinutes.toString())
+                    binding.rgReminderUnit.check(R.id.rbMinute)
+                }
+            }
+        }
+
+        setFormEnabled(false)
     }
 
     private fun updateDateTimeViews() {
@@ -157,25 +160,61 @@ class EventDetailFragment : Fragment() {
         binding.tvStartTime.setOnClickListener { if (isEditMode) showTimePicker(true) }
         binding.tvEndDate.setOnClickListener { if (isEditMode) showDatePicker(false) }
         binding.tvEndTime.setOnClickListener { if (isEditMode) showTimePicker(false) }
+
+        binding.checkboxDisableNotification.setOnCheckedChangeListener { _, isChecked ->
+            binding.layoutNotification.visibility = if (isChecked) View.GONE else View.VISIBLE
+        }
     }
 
     private fun enterEditMode() {
         isEditMode = true
-        binding.etTitle.isEnabled = true
-        binding.etLocation.isEnabled = true
-        binding.etDescription.isEnabled = true
-        binding.spinnerReminder.isEnabled = true
+        setFormEnabled(true)
         binding.btnEdit.setImageResource(R.drawable.ic_check)
         binding.etTitle.requestFocus()
     }
 
     private fun exitEditMode() {
         isEditMode = false
-        binding.etTitle.isEnabled = false
-        binding.etLocation.isEnabled = false
-        binding.etDescription.isEnabled = false
-        binding.spinnerReminder.isEnabled = false
+        setFormEnabled(false)
         binding.btnEdit.setImageResource(R.drawable.ic_edit)
+    }
+
+    private fun setFormEnabled(enabled: Boolean) {
+        val alpha = if (enabled) 1f else 0.5f
+
+        binding.etTitle.isEnabled = enabled
+        binding.etTitle.alpha = alpha
+
+        binding.etLocation.isEnabled = enabled
+        binding.etLocation.alpha = alpha
+
+        binding.etDescription.isEnabled = enabled
+        binding.etDescription.alpha = alpha
+
+        binding.tvStartDate.isEnabled = enabled
+        binding.tvStartDate.alpha = alpha
+
+        binding.tvStartTime.isEnabled = enabled
+        binding.tvStartTime.alpha = alpha
+
+        binding.tvEndDate.isEnabled = enabled
+        binding.tvEndDate.alpha = alpha
+
+        binding.tvEndTime.isEnabled = enabled
+        binding.tvEndTime.alpha = alpha
+
+        binding.checkboxDisableNotification.isEnabled = enabled
+        binding.checkboxDisableNotification.alpha = alpha
+
+        binding.edNotificationDuration.isEnabled = enabled
+        binding.edNotificationDuration.alpha = alpha
+
+        binding.rgReminderUnit.isEnabled = enabled
+        binding.rbMinute.isEnabled = enabled
+        binding.rbHour.isEnabled = enabled
+        binding.rbDay.isEnabled = enabled
+        binding.rbWeek.isEnabled = enabled
+        binding.layoutNotification.alpha = alpha
     }
 
     private fun saveEdits() {
@@ -200,19 +239,31 @@ class EventDetailFragment : Fragment() {
             return
         }
 
-        val reminderMinutes = REMINDER_OPTIONS[binding.spinnerReminder.selectedItemPosition].second
-
         val updated = event.copy(
             title = title,
             startTime = startMillis,
             endTime = endMillis,
             location = binding.etLocation.text?.toString()?.trim()?.ifBlank { null },
             description = binding.etDescription.text?.toString()?.trim()?.ifBlank { null },
-            reminderMinutes = reminderMinutes
+            reminderMinutes = getReminderMinutes()
         )
         viewModel.updateEvent(updated)
         exitEditMode()
         Toast.makeText(requireContext(), "Đã lưu", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun getReminderMinutes(): Long? {
+        if (binding.checkboxDisableNotification.isChecked) return null
+
+        val duration = binding.edNotificationDuration.text
+            ?.toString()?.trim()?.toLongOrNull() ?: 0L
+
+        return when (binding.rgReminderUnit.checkedRadioButtonId) {
+            R.id.rbHour -> duration * 60
+            R.id.rbDay -> duration * 60 * 24
+            R.id.rbWeek -> duration * 60 * 24 * 7
+            else -> duration // phút
+        }
     }
 
     private fun showDatePicker(isStart: Boolean) {
