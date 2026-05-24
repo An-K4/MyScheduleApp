@@ -1,5 +1,6 @@
 package com.example.myschedule.ui.day
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,9 +10,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myschedule.data.entity.CalendarEvent
 import com.example.myschedule.databinding.FragmentDayBinding
-import com.example.myschedule.ui.event.EventDetailFragment
+import com.example.myschedule.ui.event.EventDetailActivity
 import com.example.myschedule.ui.main.EventAdapter
-import com.example.myschedule.ui.main.MainActivity
 import com.example.myschedule.util.LunarCalendarUtil
 import com.example.myschedule.viewmodel.MainViewModel
 import java.time.LocalDate
@@ -105,9 +105,9 @@ class DayFragment : Fragment() {
     }
 
     private fun showEventDetail(event: CalendarEvent) {
-        (activity as? MainActivity)?.switchTab(
-            EventDetailFragment.newInstance(event.id),
-            "EVENT_DETAIL"
-        )
+        val intent = Intent(requireContext(), EventDetailActivity::class.java).apply {
+            putExtra(EventDetailActivity.EXTRA_EVENT_ID, event.id)
+        }
+        startActivity(intent)
     }
 }

@@ -6,7 +6,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.example.myschedule.data.repository.CalendarRepository
 import com.example.myschedule.data.repository.ImportResult
@@ -152,19 +151,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             result.value = repository.getEventById(eventId)
         }
         return result
-    }
-
-    fun getSourceNameForEvent(eventId: Int): LiveData<String> {
-        return getEventById(eventId).switchMap { event ->
-            val result = MutableLiveData<String>()
-            if (event != null) {
-                viewModelScope.launch {
-                    val source = repository.getSourceById(event.sourceId)
-                    result.value = source?.name ?: "Không rõ nguồn"
-                }
-            }
-            result
-        }
     }
 
     fun getEventsForYearRange(yearStart: Long, yearEnd: Long): LiveData<List<CalendarEvent>> {

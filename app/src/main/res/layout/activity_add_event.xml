@@ -19,35 +19,23 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"
             android:layout_centerVertical="true"
-            android:contentDescription="Quay lại"/>
+            android:contentDescription="Quay lại" />
 
-        <ImageButton
-            android:id="@+id/btnEdit"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_edit"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="8dp"
-            android:layout_centerVertical="true"
-            android:layout_toStartOf="@id/btnDelete"
-            android:contentDescription="Sửa"/>
-
-        <ImageButton
-            android:id="@+id/btnDelete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_delete"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="8dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:contentDescription="Xóa"/>
+            android:layout_centerInParent="true"
+            android:text="Thêm sự kiện"
+            android:textColor="?attr/textPrimary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
     </RelativeLayout>
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -57,7 +45,6 @@
 
             <!-- Tên sự kiện -->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layoutTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Tên sự kiện"
@@ -68,18 +55,26 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="?attr/textPrimary"
-                    android:textSize="18sp"
-                    android:enabled="false"/>
+                    android:textSize="16sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Thời gian bắt đầu -->
+            <!-- Toggle cả ngày -->
+            <CheckBox
+                android:id="@+id/checkboxAllDay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cả ngày"
+                android:textColor="?attr/textPrimary"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Bắt đầu -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Bắt đầu"
                 android:textColor="?attr/textPrimary"
                 android:textStyle="bold"
-                android:layout_marginBottom="4dp"/>
+                android:layout_marginBottom="4dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -95,7 +90,7 @@
                     android:padding="12dp"
                     android:textColor="?attr/textPrimary"
                     android:textSize="15sp"
-                    android:background="?attr/selectableItemBackground"/>
+                    android:background="?attr/selectableItemBackground" />
 
                 <TextView
                     android:id="@+id/tvStartTime"
@@ -104,18 +99,18 @@
                     android:padding="12dp"
                     android:textColor="?attr/textPrimary"
                     android:textSize="15sp"
-                    android:background="?attr/selectableItemBackground"/>
+                    android:background="?attr/selectableItemBackground" />
 
             </LinearLayout>
 
-            <!-- Thời gian kết thúc -->
+            <!-- Kết thúc -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Kết thúc"
                 android:textColor="?attr/textPrimary"
                 android:textStyle="bold"
-                android:layout_marginBottom="4dp"/>
+                android:layout_marginBottom="4dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -131,7 +126,7 @@
                     android:padding="12dp"
                     android:textColor="?attr/textPrimary"
                     android:textSize="15sp"
-                    android:background="?attr/selectableItemBackground"/>
+                    android:background="?attr/selectableItemBackground" />
 
                 <TextView
                     android:id="@+id/tvEndTime"
@@ -140,45 +135,9 @@
                     android:padding="12dp"
                     android:textColor="?attr/textPrimary"
                     android:textSize="15sp"
-                    android:background="?attr/selectableItemBackground"/>
+                    android:background="?attr/selectableItemBackground" />
 
             </LinearLayout>
-
-            <!-- Địa điểm -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layoutLocation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Địa điểm"
-                android:layout_marginBottom="12dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etLocation"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="?attr/textPrimary"
-                    android:textSize="15sp"
-                    android:enabled="false"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Mô tả -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layoutDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Mô tả"
-                android:layout_marginBottom="12dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etDescription"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="?attr/textPrimary"
-                    android:textSize="15sp"
-                    android:minLines="3"
-                    android:gravity="top"
-                    android:enabled="false"/>
-            </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Thông báo -->
             <TextView
@@ -187,7 +146,7 @@
                 android:text="Thông báo trước"
                 android:textColor="?attr/textPrimary"
                 android:textStyle="bold"
-                android:layout_marginBottom="4dp"/>
+                android:layout_marginBottom="4dp" />
 
             <CheckBox
                 android:id="@+id/checkboxDisableNotification"
@@ -195,14 +154,14 @@
                 android:layout_height="wrap_content"
                 android:text="Tắt thông báo"
                 android:textColor="?attr/textPrimary"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="8dp" />
 
-            <!-- Container ẩn/hiện theo checkbox -->
             <LinearLayout
                 android:id="@+id/layoutNotification"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_marginBottom="12dp">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
@@ -216,7 +175,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="number"
                         android:text="30"
-                        android:textColor="?attr/textPrimary"/>
+                        android:textColor="?attr/textPrimary" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <RadioGroup
@@ -252,16 +211,48 @@
                 </RadioGroup>
             </LinearLayout>
 
-            <!-- Nguồn lịch -->
-            <TextView
-                android:id="@+id/tvSource"
+            <!-- Địa điểm -->
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="?attr/textPrimary"
-                android:textSize="15sp"
-                android:layout_marginBottom="12dp"/>
+                android:hint="Địa điểm"
+                android:layout_marginBottom="12dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="?attr/textPrimary"
+                    android:textSize="16sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Mô tả -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Mô tả"
+                android:layout_marginBottom="12dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="?attr/textPrimary"
+                    android:textSize="16sp"
+                    android:minLines="3"
+                    android:gravity="top" />
+            </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
     </ScrollView>
+
+    <!-- Nút Lưu -->
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="Lưu sự kiện"
+        android:textSize="16sp" />
 
 </LinearLayout>

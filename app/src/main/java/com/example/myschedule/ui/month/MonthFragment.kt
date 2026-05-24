@@ -1,5 +1,6 @@
 package com.example.myschedule.ui.month
 
+import android.content.Intent
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,7 +16,7 @@ import com.example.myschedule.data.entity.CalendarEvent
 import com.example.myschedule.databinding.CalendarDayLayoutBinding
 import com.example.myschedule.databinding.CalendarHeaderLayoutBinding
 import com.example.myschedule.databinding.FragmentMonthBinding
-import com.example.myschedule.ui.event.EventDetailFragment
+import com.example.myschedule.ui.event.EventDetailActivity
 import com.example.myschedule.ui.main.EventAdapter
 import com.example.myschedule.ui.main.MainActivity
 import com.example.myschedule.util.LunarCalendarUtil
@@ -244,9 +245,9 @@ class MonthFragment : Fragment() {
     }
 
     private fun showEventDetail(event: CalendarEvent) {
-        (activity as? MainActivity)?.switchTab(
-            EventDetailFragment.newInstance(event.id),
-            "EVENT_DETAIL"
-        )
+        val intent = Intent(requireContext(), EventDetailActivity::class.java).apply {
+            putExtra(EventDetailActivity.EXTRA_EVENT_ID, event.id)
+        }
+        startActivity(intent)
     }
 }

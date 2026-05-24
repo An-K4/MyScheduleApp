@@ -3,16 +3,14 @@ package com.example.myschedule.ui.event
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.activity.viewModels
 import com.example.myschedule.R
 import com.example.myschedule.data.entity.CalendarEvent
-import com.example.myschedule.databinding.FragmentEventDetailBinding
-import com.example.myschedule.viewmodel.MainViewModel
+import com.example.myschedule.databinding.ActivityEventDetailBinding
+import com.example.myschedule.ui.base.BaseActivity
+import com.example.myschedule.viewmodel.EventDetailViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.time.Instant
 import java.time.LocalDate
@@ -20,63 +18,63 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-class EventDetailFragment : Fragment() {
+class EventDetailActivity : BaseActivity() {
 
     companion object {
-        private const val ARG_EVENT_ID = "event_id"
+        const val EXTRA_EVENT_ID = "event_id"
+
         private val DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy")
         private val TIME_FMT = DateTimeFormatter.ofPattern("HH:mm")
-
-        fun newInstance(eventId: Int) = EventDetailFragment().apply {
-            arguments = Bundle().apply { putInt(ARG_EVENT_ID, eventId) }
-        }
     }
 
-    private var _binding: FragmentEventDetailBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: ActivityEventDetailBinding
+    private val viewModel: EventDetailViewModel by viewModels()
 
-    private val viewModel: MainViewModel by activityViewModels()
-    private var currentEvent: CalendarEvent? = null
     private var isEditMode = false
-
     private var startDate: LocalDate = LocalDate.now()
     private var startTime: LocalTime = LocalTime.now()
     private var endDate: LocalDate = LocalDate.now()
     private var endTime: LocalTime = LocalTime.now().plusHours(1)
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentEventDetailBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityEventDetailBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val eventId = arguments?.getInt(ARG_EVENT_ID) ?: run {
-            parentFragmentManager.popBackStack()
+        val eventId = intent.getIntExtra(EXTRA_EVENT_ID, -1)
+        if (eventId == -1) {
+            finish()
             return
         }
 
-        viewModel.getEventById(eventId).observe(viewLifecycleOwner) { event ->
+        viewModel.loadEvent(eventId)
+        setupClickListeners()
+        observeViewModel()
+    }
+
+    private fun observeViewModel() {
+        viewModel.event.observe(this) { event ->
             if (event == null) {
-                parentFragmentManager.popBackStack(); return@observe
+                finish()
+                return@observe
             }
-            currentEvent = event
             bindEvent(event)
         }
 
-        viewModel.getSourceNameForEvent(eventId).observe(viewLifecycleOwner) { name ->
+        viewModel.sourceName.observe(this) { name ->
             binding.tvSource.text = "Nguồn: $name"
         }
 
-        setupClickListeners()
-    }
+        viewModel.finishSignal.observe(this) { shouldFinish ->
+            if (shouldFinish) finish()
+        }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+        viewModel.errorMessage.observe(this) { msg ->
+            if (!msg.isNullOrBlank()) {
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+                viewModel.clearError()
+            }
+        }
     }
 
     private fun bindEvent(event: CalendarEvent) {
@@ -95,7 +93,6 @@ class EventDetailFragment : Fragment() {
 
         updateDateTimeViews()
 
-        // Xóa đoạn Spinner cũ, thay bằng:
         val reminderMinutes = event.reminderMinutes
         if (reminderMinutes == null) {
             binding.checkboxDisableNotification.isChecked = true
@@ -103,7 +100,6 @@ class EventDetailFragment : Fragment() {
         } else {
             binding.checkboxDisableNotification.isChecked = false
             binding.layoutNotification.visibility = View.VISIBLE
-
             when {
                 reminderMinutes % (60 * 24 * 7) == 0L -> {
                     binding.edNotificationDuration.setText((reminderMinutes / (60 * 24 * 7)).toString())
@@ -135,27 +131,23 @@ class EventDetailFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        binding.btnBack.setOnClickListener {
-            parentFragmentManager.popBackStack()
-        }
+        binding.btnBack.setOnClickListener { finish() }
 
         binding.btnEdit.setOnClickListener {
             if (!isEditMode) enterEditMode() else saveEdits()
         }
 
         binding.btnDelete.setOnClickListener {
-            MaterialAlertDialogBuilder(requireContext())
+            MaterialAlertDialogBuilder(this)
                 .setTitle("Xóa sự kiện?")
                 .setMessage("Sự kiện sẽ bị xóa vĩnh viễn.")
                 .setNegativeButton("Hủy") { d, _ -> d.dismiss() }
                 .setPositiveButton("Xóa") { _, _ ->
-                    currentEvent?.let { viewModel.deleteEvent(it) }
-                    parentFragmentManager.popBackStack()
+                    viewModel.deleteEvent()
                 }
                 .show()
         }
 
-        // Date/Time pickers — chỉ active khi edit mode
         binding.tvStartDate.setOnClickListener { if (isEditMode) showDatePicker(true) }
         binding.tvStartTime.setOnClickListener { if (isEditMode) showTimePicker(true) }
         binding.tvEndDate.setOnClickListener { if (isEditMode) showDatePicker(false) }
@@ -181,48 +173,31 @@ class EventDetailFragment : Fragment() {
 
     private fun setFormEnabled(enabled: Boolean) {
         val alpha = if (enabled) 1f else 0.5f
-
-        binding.etTitle.isEnabled = enabled
-        binding.etTitle.alpha = alpha
-
-        binding.etLocation.isEnabled = enabled
-        binding.etLocation.alpha = alpha
-
-        binding.etDescription.isEnabled = enabled
-        binding.etDescription.alpha = alpha
-
-        binding.tvStartDate.isEnabled = enabled
-        binding.tvStartDate.alpha = alpha
-
-        binding.tvStartTime.isEnabled = enabled
-        binding.tvStartTime.alpha = alpha
-
-        binding.tvEndDate.isEnabled = enabled
-        binding.tvEndDate.alpha = alpha
-
-        binding.tvEndTime.isEnabled = enabled
-        binding.tvEndTime.alpha = alpha
-
-        binding.checkboxDisableNotification.isEnabled = enabled
-        binding.checkboxDisableNotification.alpha = alpha
-
-        binding.edNotificationDuration.isEnabled = enabled
-        binding.edNotificationDuration.alpha = alpha
-
+        listOf(
+            binding.etTitle,
+            binding.etLocation,
+            binding.etDescription,
+            binding.tvStartDate,
+            binding.tvStartTime,
+            binding.tvEndDate,
+            binding.tvEndTime,
+            binding.checkboxDisableNotification,
+            binding.edNotificationDuration
+        ).forEach {
+            it.isEnabled = enabled
+            it.alpha = alpha
+        }
+        listOf(binding.rbMinute, binding.rbHour, binding.rbDay, binding.rbWeek).forEach {
+            it.isEnabled = enabled
+        }
         binding.rgReminderUnit.isEnabled = enabled
-        binding.rbMinute.isEnabled = enabled
-        binding.rbHour.isEnabled = enabled
-        binding.rbDay.isEnabled = enabled
-        binding.rbWeek.isEnabled = enabled
         binding.layoutNotification.alpha = alpha
     }
 
     private fun saveEdits() {
-        val event = currentEvent ?: return
         val title = binding.etTitle.text?.toString()?.trim()
         if (title.isNullOrBlank()) {
-            Toast.makeText(requireContext(), "Tên sự kiện không được để trống", Toast.LENGTH_SHORT)
-                .show()
+            Toast.makeText(this, "Tên sự kiện không được để trống", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -232,44 +207,42 @@ class EventDetailFragment : Fragment() {
 
         if (endMillis <= startMillis) {
             Toast.makeText(
-                requireContext(),
+                this,
                 "Thời gian kết thúc phải sau thời gian bắt đầu",
                 Toast.LENGTH_SHORT
             ).show()
             return
         }
 
-        val updated = event.copy(
+        viewModel.updateEvent(
             title = title,
-            startTime = startMillis,
-            endTime = endMillis,
+            startMillis = startMillis,
+            endMillis = endMillis,
             location = binding.etLocation.text?.toString()?.trim()?.ifBlank { null },
             description = binding.etDescription.text?.toString()?.trim()?.ifBlank { null },
             reminderMinutes = getReminderMinutes()
         )
-        viewModel.updateEvent(updated)
+
         exitEditMode()
-        Toast.makeText(requireContext(), "Đã lưu", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Đã lưu", Toast.LENGTH_SHORT).show()
     }
 
     private fun getReminderMinutes(): Long? {
         if (binding.checkboxDisableNotification.isChecked) return null
-
         val duration = binding.edNotificationDuration.text
             ?.toString()?.trim()?.toLongOrNull() ?: 0L
-
         return when (binding.rgReminderUnit.checkedRadioButtonId) {
             R.id.rbHour -> duration * 60
             R.id.rbDay -> duration * 60 * 24
             R.id.rbWeek -> duration * 60 * 24 * 7
-            else -> duration // phút
+            else -> duration
         }
     }
 
     private fun showDatePicker(isStart: Boolean) {
         val date = if (isStart) startDate else endDate
         DatePickerDialog(
-            requireContext(),
+            this,
             { _, year, month, day ->
                 val picked = LocalDate.of(year, month + 1, day)
                 if (isStart) {
@@ -287,7 +260,7 @@ class EventDetailFragment : Fragment() {
     private fun showTimePicker(isStart: Boolean) {
         val time = if (isStart) startTime else endTime
         TimePickerDialog(
-            requireContext(),
+            this,
             { _, hour, minute ->
                 if (isStart) startTime = LocalTime.of(hour, minute)
                 else endTime = LocalTime.of(hour, minute)

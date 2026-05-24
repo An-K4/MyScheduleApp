@@ -6,15 +6,15 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myschedule.data.entity.CalendarSource
 import com.example.myschedule.data.repository.ImportResult
 import com.example.myschedule.databinding.ActivitySourceManagerBinding
+import com.example.myschedule.ui.base.BaseActivity
 import com.example.myschedule.viewmodel.SourceManagerViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-class SourceManagerActivity : AppCompatActivity() {
+class SourceManagerActivity : BaseActivity() {
 
     private lateinit var binding: ActivitySourceManagerBinding
     private val viewModel: SourceManagerViewModel by viewModels()
