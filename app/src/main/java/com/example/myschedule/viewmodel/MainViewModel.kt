@@ -37,6 +37,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _importResult = MutableLiveData<ImportResult?>()
     val importResult: LiveData<ImportResult?> = _importResult
 
+    private val _scrollToToday = MutableLiveData(false)
+    val scrollToToday: LiveData<Boolean> = _scrollToToday
+
+    fun goToToday() {
+        selectDate(LocalDate.now())
+        setCurrentMonth(YearMonth.now())
+        _scrollToToday.value = true
+    }
+
+    fun clearScrollToToday() { _scrollToToday.value = false }
+
     val eventDateColors: LiveData<Map<LocalDate, List<Int>>> =
         combine(
             repository.getEnabledEventTimes(),

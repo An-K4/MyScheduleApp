@@ -79,6 +79,13 @@ class MonthFragment : Fragment() {
     }
 
     private fun observeViewModel() {
+        viewModel.scrollToToday.observe(viewLifecycleOwner) { shouldScroll ->
+            if (shouldScroll) {
+                binding.calendarView.scrollToMonth(YearMonth.now())
+                viewModel.clearScrollToToday()
+            }
+        }
+
         viewModel.eventDateColors.observe(viewLifecycleOwner) { dateColors ->
             eventDateColorsCache = dateColors
             binding.calendarView.notifyCalendarChanged()

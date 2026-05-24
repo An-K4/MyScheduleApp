@@ -105,6 +105,16 @@ class AgendaFragment : Fragment() {
     }
 
     private fun observeViewModel() {
+        viewModel.scrollToToday.observe(viewLifecycleOwner) { shouldScroll ->
+            if (shouldScroll) {
+                currentYear = LocalDate.now().year
+                loadAgendaForYear(currentYear)
+                yearAdapter.submitData(generateYearList(), currentYear)
+                scrollYearToCenter(currentYear)
+                viewModel.clearScrollToToday()
+            }
+        }
+
         // Observe sourceColors riêng để update màu khi source thay đổi
         viewModel.sourceColors.observe(viewLifecycleOwner) { colors ->
             // Chỉ update màu, không rebuild toàn bộ list

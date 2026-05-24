@@ -74,6 +74,15 @@ class YearFragment : Fragment() {
     }
 
     private fun observeViewModel() {
+        viewModel.scrollToToday.observe(viewLifecycleOwner) { shouldScroll ->
+            if (shouldScroll) {
+                currentYear = LocalDate.now().year
+                updateHeader()
+                refreshData()
+                viewModel.clearScrollToToday()
+            }
+        }
+
         viewModel.eventDates.observe(viewLifecycleOwner) { dates ->
             refreshData()
         }

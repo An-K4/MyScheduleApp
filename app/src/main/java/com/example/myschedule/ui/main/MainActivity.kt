@@ -25,6 +25,7 @@ import com.example.myschedule.ui.source.SourceManagerActivity
 import com.example.myschedule.ui.year.YearFragment
 import com.example.myschedule.viewmodel.MainViewModel
 import com.google.android.material.navigation.NavigationView
+import java.time.LocalDate
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -48,6 +49,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setupDrawer()
         setupClickListeners()
         askNotificationPermission()
+
+        binding.btnToday.text = LocalDate.now().dayOfMonth.toString()
 
         onBackPressedDispatcher.addCallback(this) {
             when {
@@ -109,6 +112,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         binding.btnSourceManager.setOnClickListener {
             startActivity(Intent(this, SourceManagerActivity::class.java))
+        }
+
+        binding.btnToday.setOnClickListener {
+            viewModel.goToToday()
         }
 
         // 1.8 — Nút + → AddEditEventFragment

@@ -57,6 +57,18 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_source_manager"
                 android:padding="8dp"
+                android:layout_toStartOf="@id/btnToday"
+                android:layout_centerVertical="true" />
+
+            <TextView
+                android:id="@+id/btnToday"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:textSize="12sp"
+                android:textColor="?attr/colorOnBackground"
+                android:background="@drawable/bg_today_circle"
                 android:layout_toStartOf="@id/btnAddEvent"
                 android:layout_centerVertical="true" />
 
