@@ -190,7 +190,7 @@ class MonthFragment : Fragment() {
             viewModel.setCurrentMonth(month.yearMonth)
             val monthName = month.yearMonth.month
                 .getDisplayName(TextStyle.FULL, Locale("vi"))
-            val title = "${monthName.replaceFirstChar { it.titlecase(Locale("vi")) }} ${month.yearMonth.year}"
+            val title = monthName.replaceFirstChar { it.titlecase(Locale("vi")) }
             (activity as? MainActivity)?.updateMonthYearTitle(title)
         }
 

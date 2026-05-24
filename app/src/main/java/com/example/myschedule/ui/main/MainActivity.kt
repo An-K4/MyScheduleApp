@@ -25,6 +25,7 @@ import com.example.myschedule.ui.source.SourceManagerActivity
 import com.example.myschedule.ui.year.YearFragment
 import com.example.myschedule.viewmodel.MainViewModel
 import com.google.android.material.navigation.NavigationView
+import com.google.android.material.switchmaterial.SwitchMaterial
 import java.time.LocalDate
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -47,6 +48,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         initTheme()
         setupDrawer()
+        setupDrawerThemeSwitch()
         setupClickListeners()
         askNotificationPermission()
 
@@ -79,13 +81,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         AppCompatDelegate.setDefaultNightMode(
             if (isDark) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
         )
-        updateThemeIcon(isDark)
-    }
-
-    private fun updateThemeIcon(isDark: Boolean) {
-        binding.btnToggleTheme.setImageResource(
-            if (isDark) R.drawable.ic_theme_toggle else R.drawable.ic_sun
-        )
     }
 
     private fun setupDrawer() {
@@ -99,40 +94,45 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding.navigationView.setNavigationItemSelectedListener(this)
     }
 
-    private fun setupClickListeners() {
-        binding.btnToggleTheme.setOnClickListener {
-            val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            val isDark = prefs.getBoolean(KEY_DARK_MODE, true)
-            val newIsDark = !isDark
-            prefs.edit { putBoolean(KEY_DARK_MODE, newIsDark) }
+    private fun setupDrawerThemeSwitch() {
+        val menuItem = binding.navigationView.menu.findItem(R.id.nav_theme)
+        val switchView = menuItem.actionView as SwitchMaterial
+
+        // Set trạng thái hiện tại
+        val isDark = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+            .getBoolean(KEY_DARK_MODE, true)
+        switchView.isChecked = isDark
+
+        switchView.setOnCheckedChangeListener { _, isChecked ->
+            getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .edit { putBoolean(KEY_DARK_MODE, isChecked) }
             AppCompatDelegate.setDefaultNightMode(
-                if (newIsDark) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+                if (isChecked) AppCompatDelegate.MODE_NIGHT_YES
+                else AppCompatDelegate.MODE_NIGHT_NO
             )
         }
+    }
 
-        binding.btnSourceManager.setOnClickListener {
-            startActivity(Intent(this, SourceManagerActivity::class.java))
-        }
-
+    private fun setupClickListeners() {
         binding.btnToday.setOnClickListener {
             viewModel.goToToday()
         }
 
-        // 1.8 — Nút + → AddEditEventFragment
         binding.btnAddEvent.setOnClickListener {
             pushFragment(AddEditEventFragment.newInstance(), "ADD_EDIT_EVENT")
         }
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        val fragment: Fragment = when (item.itemId) {
-            R.id.nav_month -> MonthFragment()
-            R.id.nav_day -> DayFragment()
-            R.id.nav_year -> YearFragment()
-            R.id.nav_agenda -> AgendaFragment()
+        when (item.itemId) {
+            R.id.nav_month -> switchTab(MonthFragment(), item.itemId.toString())
+            R.id.nav_day -> switchTab(DayFragment(), item.itemId.toString())
+            R.id.nav_year -> switchTab(YearFragment(), item.itemId.toString())
+            R.id.nav_agenda -> switchTab(AgendaFragment(), item.itemId.toString())
+            R.id.nav_sources -> startActivity(Intent(this, SourceManagerActivity::class.java))
+            R.id.nav_theme -> return false // handle bởi Switch, không cần làm gì
             else -> return false
         }
-        switchTab(fragment, item.itemId.toString())
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }

@@ -42,24 +42,6 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="8dp"/>
 
-            <ImageView
-                android:id="@+id/btnToggleTheme"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_theme_toggle"
-                android:padding="8dp"
-                android:layout_toStartOf="@id/btnSourceManager"
-                android:layout_centerVertical="true" />
-
-            <ImageView
-                android:id="@+id/btnSourceManager"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_source_manager"
-                android:padding="8dp"
-                android:layout_toStartOf="@id/btnToday"
-                android:layout_centerVertical="true" />
-
             <TextView
                 android:id="@+id/btnToday"
                 android:layout_width="32dp"
