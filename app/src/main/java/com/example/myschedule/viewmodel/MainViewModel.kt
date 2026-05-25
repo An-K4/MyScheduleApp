@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.example.myschedule.data.repository.CalendarRepository
 import com.example.myschedule.data.repository.ImportResult
@@ -101,6 +102,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             .flatMapLatest { date -> repository.getEventsForDay(date) }
             .asLiveData()
 
+    private val _agendaYearRange = MutableLiveData<Pair<Long, Long>>()
+
+    fun setAgendaYearRange(yearStart: Long, yearEnd: Long) {
+        _agendaYearRange.value = Pair(yearStart, yearEnd)
+    }
+
+    val agendaEvents: LiveData<List<CalendarEvent>> = _agendaYearRange.switchMap { (start, end) ->
+        repository.getEventsForYearRange(start, end).asLiveData()
+    }
+
     init {
         viewModelScope.launch {
             repository.ensureDefaultSource()
@@ -151,9 +162,5 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             result.value = repository.getEventById(eventId)
         }
         return result
-    }
-
-    fun getEventsForYearRange(yearStart: Long, yearEnd: Long): LiveData<List<CalendarEvent>> {
-        return repository.getEventsForYearRange(yearStart, yearEnd).asLiveData()
     }
 }

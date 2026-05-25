@@ -124,16 +124,13 @@ class AgendaFragment : Fragment() {
             agendaAdapter.updateColors(colors)
         }
 
-        viewModel.currentMonth.observe(viewLifecycleOwner) { month ->
-            // Cập nhật toolbar title
-            updateToolbarTitle(month)
-            // Đồng bộ năm nếu cần
-            if (month.year != currentYear) {
-                currentYear = month.year
-                loadAgendaForYear(currentYear)
-                yearAdapter.submitData(generateYearList(), currentYear)
-                scrollYearToCenter(currentYear)
-            }
+        viewModel.agendaEvents.observe(viewLifecycleOwner) { events ->
+            val zone = ZoneId.systemDefault()
+            val yearStart = YearMonth.of(currentYear, 1).atDay(1)
+                .atStartOfDay(zone).toInstant().toEpochMilli()
+            val yearEnd = YearMonth.of(currentYear, 12).atEndOfMonth()
+                .atTime(23, 59, 59).atZone(zone).toInstant().toEpochMilli()
+            updateAgendaUI(events, yearStart, yearEnd, zone)
         }
     }
 
@@ -144,13 +141,11 @@ class AgendaFragment : Fragment() {
 
     private fun loadAgendaForYear(year: Int) {
         val zone = ZoneId.systemDefault()
-        val yearStart = YearMonth.of(year, 1).atDay(1).atStartOfDay(zone).toInstant().toEpochMilli()
-        val yearEnd = YearMonth.of(year, 12).atEndOfMonth().atTime(23, 59, 59).atZone(zone).toInstant().toEpochMilli()
-
-        // Observe cả 2 LiveData cùng lúc, không lồng nhau
-        viewModel.getEventsForYearRange(yearStart, yearEnd).observe(viewLifecycleOwner) { events ->
-            updateAgendaUI(events, yearStart, yearEnd, zone)
-        }
+        val yearStart = YearMonth.of(year, 1).atDay(1)
+            .atStartOfDay(zone).toInstant().toEpochMilli()
+        val yearEnd = YearMonth.of(year, 12).atEndOfMonth()
+            .atTime(23, 59, 59).atZone(zone).toInstant().toEpochMilli()
+        viewModel.setAgendaYearRange(yearStart, yearEnd)
     }
 
     private fun updateAgendaUI(
