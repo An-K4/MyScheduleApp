@@ -1,6 +1,5 @@
 package com.example.myschedule.ui.calendar
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,9 +10,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myschedule.data.entity.CalendarEvent
 import com.example.myschedule.databinding.FragmentDayBinding
 import com.example.myschedule.ui.event.EventDetailActivity
+import com.example.myschedule.ui.MainActivity
 import com.example.myschedule.util.LunarCalendarUtil
 import com.example.myschedule.viewmodel.MainViewModel
+import android.content.Intent
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -68,6 +70,15 @@ class DayFragment : Fragment() {
     private fun observeViewModel() {
         viewModel.selectedDate.observe(viewLifecycleOwner) { date ->
             updateHeader(date)
+            // Đồng bộ currentMonth theo ngày đang xem
+            val month = YearMonth.of(date.year, date.month)
+            if (viewModel.currentMonth.value != month) {
+                viewModel.setCurrentMonth(month)
+            }
+        }
+
+        viewModel.currentMonth.observe(viewLifecycleOwner) { month ->
+            updateToolbarTitle(month)
         }
 
         viewModel.eventsForSelectedDate.observe(viewLifecycleOwner) { events ->
@@ -81,23 +92,22 @@ class DayFragment : Fragment() {
 
     private fun updateHeader(date: LocalDate) {
         val dayOfWeek = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale("vi"))
-        val day = date.dayOfMonth
-        val month = date.monthValue
+        binding.tvDayHeader.text = "$dayOfWeek, ${date.dayOfMonth} tháng ${date.monthValue}"
+        binding.tvLunarHeader.text = "Ngày ${LunarCalendarUtil.toLunarDateShort(date)} âm lịch"
+    }
 
-        val lunar = LunarCalendarUtil.toLunarDateShort(date)
-
-        // Format: "Thứ Ba, 19 tháng 5 • 15/4 âl"
-        binding.tvDayHeader.text = "$dayOfWeek, $day tháng $month"
-        binding.tvLunarHeader.text = "Ngày $lunar âm lịch"
+    private fun updateToolbarTitle(month: YearMonth) {
+        val monthName = month.month.getDisplayName(TextStyle.FULL, Locale("vi"))
+            .replaceFirstChar { it.titlecase(Locale("vi")) }
+        (activity as? MainActivity)?.updateMonthYearTitle(monthName)
     }
 
     private fun updateEventList(events: List<CalendarEvent>) {
-        binding.tvNoEvent.visibility = View.GONE
-        binding.rvEvents.visibility = View.GONE
-
         if (events.isEmpty()) {
             binding.tvNoEvent.visibility = View.VISIBLE
+            binding.rvEvents.visibility = View.GONE
         } else {
+            binding.tvNoEvent.visibility = View.GONE
             binding.rvEvents.visibility = View.VISIBLE
             eventAdapter.submitList(events)
         }
@@ -105,7 +115,7 @@ class DayFragment : Fragment() {
 
     private fun showEventDetail(event: CalendarEvent) {
         val intent = Intent(requireContext(), EventDetailActivity::class.java).apply {
-            putExtra(EventDetailActivity.Companion.EXTRA_EVENT_ID, event.id)
+            putExtra(EventDetailActivity.EXTRA_EVENT_ID, event.id)
         }
         startActivity(intent)
     }

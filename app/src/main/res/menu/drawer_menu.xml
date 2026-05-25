@@ -1,38 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:title="Chế độ xem">
-        <menu>
-            <item
-                android:id="@+id/nav_day"
-                android:icon="@drawable/ic_day"
-                android:title="Ngày" />
-            <item
-                android:id="@+id/nav_month"
-                android:icon="@drawable/ic_month"
-                android:title="Tháng" />
-            <item
-                android:id="@+id/nav_year"
-                android:icon="@drawable/ic_year"
-                android:title="Năm" />
-            <item
-                android:id="@+id/nav_agenda"
-                android:icon="@drawable/ic_agenda"
-                android:title="Lịch biểu" />
-        </menu>
-    </item>
 
-    <item android:title="Khác">
-        <menu>
-            <item
-                android:id="@+id/nav_sources"
-                android:icon="@drawable/ic_source_manager"
-                android:title="Nguồn lịch" />
-            <item
-                android:id="@+id/nav_theme"
-                android:icon="@drawable/ic_theme_toggle"
-                android:title="Chế độ tối"
-                app:actionLayout="@layout/drawer_switch_item" />
-        </menu>
-    </item>
+    <!-- 4 chế độ xem — checkable, highlight khi chọn -->
+    <group
+        android:id="@+id/group_view_modes"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_day"
+            android:icon="@drawable/ic_day"
+            android:title="Ngày" />
+        <item
+            android:id="@+id/nav_month"
+            android:icon="@drawable/ic_month"
+            android:title="Tháng"
+            android:checked="true" />
+        <item
+            android:id="@+id/nav_year"
+            android:icon="@drawable/ic_year"
+            android:title="Năm" />
+        <item
+            android:id="@+id/nav_agenda"
+            android:icon="@drawable/ic_agenda"
+            android:title="Lịch biểu" />
+    </group>
+
+    <!-- Khác — không checkable -->
+    <group android:id="@+id/group_others">
+        <item
+            android:id="@+id/nav_sources"
+            android:icon="@drawable/ic_source_manager"
+            android:title="Nguồn lịch" />
+        <item
+            android:id="@+id/nav_theme"
+            android:icon="@drawable/ic_theme_toggle"
+            android:title="Chế độ tối"
+            app:actionLayout="@layout/drawer_switch_item" />
+    </group>
+
 </menu>

@@ -82,6 +82,7 @@
         android:background="?attr/appBackground"
         app:menu="@menu/drawer_menu"
         app:itemTextColor="?attr/textPrimary"
-        app:itemIconTint="?attr/textPrimary"/>
+        app:itemIconTint="?attr/textPrimary"
+        app:itemBackground="@drawable/nav_item_background"/>
 
 </androidx.drawerlayout.widget.DrawerLayout>

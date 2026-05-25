@@ -13,6 +13,8 @@ import com.example.myschedule.ui.MainActivity
 import com.example.myschedule.viewmodel.MainViewModel
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.format.TextStyle
+import java.util.Locale
 
 class YearFragment : Fragment() {
 
@@ -46,14 +48,12 @@ class YearFragment : Fragment() {
 
     private fun setupRecyclerView() {
         adapter = MiniMonthAdapter { month ->
-            // 6.5 — Click tháng → chuyển MonthFragment + scroll tới tháng đó
             viewModel.setCurrentMonth(month)
             (activity as? MainActivity)?.switchTab(MonthFragment(), "MONTH")
             (activity as? MainActivity)?.binding?.navigationView?.setCheckedItem(R.id.nav_month)
         }
-
         binding.rvMonths.apply {
-            layoutManager = GridLayoutManager(requireContext(), 3) // 3 cột
+            layoutManager = GridLayoutManager(requireContext(), 3)
             this.adapter = this@YearFragment.adapter
         }
     }
@@ -64,7 +64,6 @@ class YearFragment : Fragment() {
             updateHeader()
             refreshData()
         }
-
         binding.btnNextYear.setOnClickListener {
             currentYear++
             updateHeader()
@@ -82,11 +81,14 @@ class YearFragment : Fragment() {
             }
         }
 
-        viewModel.eventDates.observe(viewLifecycleOwner) { dates ->
+        viewModel.eventDates.observe(viewLifecycleOwner) {
             refreshData()
         }
 
         viewModel.currentMonth.observe(viewLifecycleOwner) { month ->
+            // Cập nhật toolbar title
+            updateToolbarTitle(month)
+            // Cập nhật năm nếu cần
             if (month.year != currentYear) {
                 currentYear = month.year
                 updateHeader()
@@ -97,6 +99,12 @@ class YearFragment : Fragment() {
 
     private fun updateHeader() {
         binding.tvYearHeader.text = "Năm $currentYear"
+    }
+
+    private fun updateToolbarTitle(month: YearMonth) {
+        val monthName = month.month.getDisplayName(TextStyle.FULL, Locale("vi"))
+            .replaceFirstChar { it.titlecase(Locale("vi")) }
+        (activity as? MainActivity)?.updateMonthYearTitle(monthName)
     }
 
     private fun refreshData() {

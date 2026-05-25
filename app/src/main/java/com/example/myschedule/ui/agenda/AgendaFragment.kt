@@ -10,12 +10,15 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myschedule.data.entity.CalendarEvent
 import com.example.myschedule.databinding.FragmentAgendaBinding
+import com.example.myschedule.ui.MainActivity
 import com.example.myschedule.ui.event.EventDetailActivity
 import com.example.myschedule.viewmodel.MainViewModel
 import java.time.Instant
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
+import java.time.format.TextStyle
+import java.util.Locale
 
 class AgendaFragment : Fragment() {
 
@@ -122,6 +125,9 @@ class AgendaFragment : Fragment() {
         }
 
         viewModel.currentMonth.observe(viewLifecycleOwner) { month ->
+            // Cập nhật toolbar title
+            updateToolbarTitle(month)
+            // Đồng bộ năm nếu cần
             if (month.year != currentYear) {
                 currentYear = month.year
                 loadAgendaForYear(currentYear)
@@ -246,5 +252,11 @@ class AgendaFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun updateToolbarTitle(month: YearMonth) {
+        val monthName = month.month.getDisplayName(TextStyle.FULL, Locale("vi"))
+            .replaceFirstChar { it.titlecase(Locale("vi")) }
+        (activity as? MainActivity)?.updateMonthYearTitle(monthName)
     }
 }

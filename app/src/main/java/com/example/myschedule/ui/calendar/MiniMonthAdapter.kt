@@ -30,7 +30,6 @@ class MiniMonthAdapter(
         fun bind(month: YearMonth) {
             binding.tvMonthName.text = "Tháng ${month.monthValue}"
 
-            // Highlight tháng hiện tại
             if (month == currentMonth) {
                 binding.cardMonth.strokeWidth = 4
                 binding.cardMonth.strokeColor = "#FFA500".toColorInt()
@@ -40,7 +39,6 @@ class MiniMonthAdapter(
 
             binding.cardMonth.setOnClickListener { onMonthClick(month) }
 
-            // Đợi grid được layout xong mới đo width thực tế
             binding.gridDays.post {
                 val gridWidth = binding.gridDays.width
                 if (gridWidth > 0) {
@@ -52,22 +50,17 @@ class MiniMonthAdapter(
         private fun renderMiniCalendar(grid: GridLayout, month: YearMonth, gridWidth: Int) {
             grid.removeAllViews()
 
-            // cellSize tính theo width thực tế, không hardcode tối thiểu
             val cellSize = gridWidth / 7
-
-            // textSize derive từ cellSize: 42% ô, đổi px → sp
             val scaledDensity = grid.resources.displayMetrics.scaledDensity
-            val textSizeSp = (cellSize * 0.65f) / scaledDensity
+            val textSizeSp = (cellSize * 0.55f) / scaledDensity
 
-            val firstDayOfWeek = month.atDay(1).dayOfWeek.value // 1 = Monday
+            val firstDayOfWeek = month.atDay(1).dayOfWeek.value
             val daysInMonth = month.lengthOfMonth()
 
-            // Ô trống trước ngày 1
             repeat(firstDayOfWeek - 1) {
                 grid.addView(createEmptyCell(cellSize))
             }
 
-            // Các ngày trong tháng
             for (day in 1..daysInMonth) {
                 grid.addView(createDayCell(month.atDay(day), cellSize, textSizeSp))
             }
@@ -83,6 +76,9 @@ class MiniMonthAdapter(
         }
 
         private fun createDayCell(date: LocalDate, size: Int, textSizeSp: Float): TextView {
+            val isToday = date == today
+            val hasEvent = eventDates.contains(date)
+
             return TextView(itemView.context).apply {
                 text = date.dayOfMonth.toString()
                 gravity = android.view.Gravity.CENTER
@@ -95,32 +91,27 @@ class MiniMonthAdapter(
                     setMargins(1, 1, 1, 1)
                 }
 
-                when {
-                    // Ngày hôm nay — vòng tròn cam, chữ trắng
-                    date == today -> {
-                        background = GradientDrawable().apply {
-                            shape = GradientDrawable.OVAL
-                            setColor("#FFA500".toColorInt())
-                        }
-                        setTextColor(Color.WHITE)
+                // Nền vàng cho ngày hôm nay — độc lập với chấm sự kiện
+                if (isToday) {
+                    background = GradientDrawable().apply {
+                        shape = GradientDrawable.OVAL
+                        setColor("#FFA500".toColorInt())
                     }
+                    setTextColor(Color.WHITE)
+                } else {
+                    setTextColor(getTextColor(date))
+                }
 
-                    // Ngày có sự kiện — chấm teal dưới số
-                    eventDates.contains(date) -> {
-                        setTextColor(getTextColor(date))
-                        val dot = GradientDrawable().apply {
-                            shape = GradientDrawable.OVAL
-                            setColor("#03DAC5".toColorInt())
-                            // dot size = 12% cellSize, tối thiểu 4px
-                            val dotSize = (size * 0.12f).toInt().coerceAtLeast(4)
-                            setSize(dotSize, dotSize)
-                        }
-                        setCompoundDrawablesWithIntrinsicBounds(null, null, null, dot)
-                        compoundDrawablePadding = 0
+                // Chấm sự kiện — vẽ độc lập, không bị block bởi isToday
+                if (hasEvent) {
+                    val dotSize = (size * 0.12f).toInt().coerceAtLeast(4)
+                    val dot = GradientDrawable().apply {
+                        shape = GradientDrawable.OVAL
+                        setColor("#03DAC5".toColorInt())
+                        setSize(dotSize, dotSize)
                     }
-
-                    // Ngày thường
-                    else -> setTextColor(getTextColor(date))
+                    setCompoundDrawablesWithIntrinsicBounds(null, null, null, dot)
+                    compoundDrawablePadding = 0
                 }
             }
         }
