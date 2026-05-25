@@ -9,7 +9,7 @@ import androidx.activity.viewModels
 import com.example.myschedule.R
 import com.example.myschedule.data.entity.CalendarEvent
 import com.example.myschedule.databinding.ActivityAddEventBinding
-import com.example.myschedule.ui.base.BaseActivity
+import com.example.myschedule.ui.BaseActivity
 import com.example.myschedule.viewmodel.AddEventViewModel
 import java.time.LocalDate
 import java.time.LocalDateTime

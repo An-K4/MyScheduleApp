@@ -9,7 +9,7 @@ import androidx.activity.viewModels
 import com.example.myschedule.R
 import com.example.myschedule.data.entity.CalendarEvent
 import com.example.myschedule.databinding.ActivityEventDetailBinding
-import com.example.myschedule.ui.base.BaseActivity
+import com.example.myschedule.ui.BaseActivity
 import com.example.myschedule.viewmodel.EventDetailViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.time.Instant

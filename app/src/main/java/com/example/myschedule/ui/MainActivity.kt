@@ -1,4 +1,4 @@
-package com.example.myschedule.ui.main
+package com.example.myschedule.ui
 
 import android.Manifest
 import android.content.Intent
@@ -8,19 +8,18 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import com.example.myschedule.R
 import com.example.myschedule.databinding.ActivityMainBinding
 import com.example.myschedule.ui.agenda.AgendaFragment
-import com.example.myschedule.ui.base.BaseActivity
-import com.example.myschedule.ui.day.DayFragment
+import com.example.myschedule.ui.calendar.DayFragment
+import com.example.myschedule.ui.calendar.MonthFragment
+import com.example.myschedule.ui.calendar.YearFragment
 import com.example.myschedule.ui.event.AddEventActivity
-import com.example.myschedule.ui.month.MonthFragment
 import com.example.myschedule.ui.source.SourceManagerActivity
-import com.example.myschedule.ui.year.YearFragment
 import com.example.myschedule.viewmodel.MainViewModel
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.switchmaterial.SwitchMaterial

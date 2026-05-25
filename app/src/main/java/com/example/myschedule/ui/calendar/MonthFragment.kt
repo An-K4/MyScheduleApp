@@ -1,11 +1,14 @@
-package com.example.myschedule.ui.month
+package com.example.myschedule.ui.calendar
 
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
@@ -17,8 +20,7 @@ import com.example.myschedule.databinding.CalendarDayLayoutBinding
 import com.example.myschedule.databinding.CalendarHeaderLayoutBinding
 import com.example.myschedule.databinding.FragmentMonthBinding
 import com.example.myschedule.ui.event.EventDetailActivity
-import com.example.myschedule.ui.main.EventAdapter
-import com.example.myschedule.ui.main.MainActivity
+import com.example.myschedule.ui.MainActivity
 import com.example.myschedule.util.LunarCalendarUtil
 import com.example.myschedule.viewmodel.MainViewModel
 import com.kizitonwose.calendar.core.CalendarDay
@@ -126,7 +128,7 @@ class MonthFragment : Fragment() {
     }
 
     private fun getThemeColor(attr: Int): Int {
-        val typedValue = android.util.TypedValue()
+        val typedValue = TypedValue()
         requireContext().theme.resolveAttribute(attr, typedValue, true)
         return typedValue.data
     }
@@ -176,7 +178,7 @@ class MonthFragment : Fragment() {
                             if (data.date.dayOfWeek == DayOfWeek.SUNDAY)
                                 resources.getColor(R.color.sunday_text_color, null)
                             else
-                                android.graphics.Color.GRAY
+                                Color.GRAY
                         )
                     }
                 } else {
@@ -211,7 +213,7 @@ class MonthFragment : Fragment() {
         if (viewModel.selectedDate.value == null) viewModel.selectDate(LocalDate.now())
     }
 
-    private fun renderEventDots(container: android.widget.LinearLayout, date: LocalDate) {
+    private fun renderEventDots(container: LinearLayout, date: LocalDate) {
         container.removeAllViews()
         val colors = eventDateColorsCache[date] ?: return
         val density = resources.displayMetrics.density
@@ -223,7 +225,7 @@ class MonthFragment : Fragment() {
                     shape = GradientDrawable.OVAL
                     setColor(color)
                 }
-                layoutParams = android.widget.LinearLayout.LayoutParams(sizePx, sizePx).apply {
+                layoutParams = LinearLayout.LayoutParams(sizePx, sizePx).apply {
                     setMargins(marginPx, 0, marginPx, 0)
                 }
             }
@@ -246,7 +248,7 @@ class MonthFragment : Fragment() {
 
     private fun showEventDetail(event: CalendarEvent) {
         val intent = Intent(requireContext(), EventDetailActivity::class.java).apply {
-            putExtra(EventDetailActivity.EXTRA_EVENT_ID, event.id)
+            putExtra(EventDetailActivity.Companion.EXTRA_EVENT_ID, event.id)
         }
         startActivity(intent)
     }

@@ -15,7 +15,7 @@
         android:theme="@style/Theme.MySchedule">
 
         <activity
-            android:name=".ui.main.MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,18 +27,18 @@
             android:name=".ui.event.AddEventActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize"
-            android:parentActivityName=".ui.main.MainActivity" />
+            android:parentActivityName=".ui.MainActivity" />
 
         <activity
             android:name=".ui.event.EventDetailActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize"
-            android:parentActivityName=".ui.main.MainActivity" />
+            android:parentActivityName=".ui.MainActivity" />
 
         <activity
             android:name=".ui.source.SourceManagerActivity"
             android:exported="false"
-            android:parentActivityName=".ui.main.MainActivity" />
+            android:parentActivityName=".ui.MainActivity" />
 
         <receiver
             android:name=".receiver.NotificationReceiver"

@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myschedule.data.entity.CalendarSource
 import com.example.myschedule.data.repository.ImportResult
 import com.example.myschedule.databinding.ActivitySourceManagerBinding
-import com.example.myschedule.ui.base.BaseActivity
+import com.example.myschedule.ui.BaseActivity
 import com.example.myschedule.viewmodel.SourceManagerViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 

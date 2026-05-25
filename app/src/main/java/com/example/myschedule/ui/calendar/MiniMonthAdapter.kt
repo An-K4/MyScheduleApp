@@ -1,7 +1,8 @@
-package com.example.myschedule.ui.year
+package com.example.myschedule.ui.calendar
 
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,7 @@ import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
 import androidx.core.graphics.toColorInt
+import com.google.android.material.R
 
 class MiniMonthAdapter(
     private val onMonthClick: (YearMonth) -> Unit
@@ -81,7 +83,7 @@ class MiniMonthAdapter(
         private fun createDayCell(date: LocalDate, size: Int): TextView {
             return TextView(itemView.context).apply {
                 text = date.dayOfMonth.toString()
-                gravity = android.view.Gravity.CENTER
+                gravity = Gravity.CENTER
                 textSize = 10f
 
                 // Màu chữ
@@ -91,7 +93,7 @@ class MiniMonthAdapter(
                     else
                         MaterialColors.getColor(
                             itemView.context,
-                            com.google.android.material.R.attr.colorOnBackground,
+                            R.attr.colorOnBackground,
                             Color.BLACK
                         )
                 )

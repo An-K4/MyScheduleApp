@@ -1,4 +1,4 @@
-package com.example.myschedule.ui.year
+package com.example.myschedule.ui.calendar
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,8 +9,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.myschedule.R
 import com.example.myschedule.databinding.FragmentYearBinding
-import com.example.myschedule.ui.main.MainActivity
-import com.example.myschedule.ui.month.MonthFragment
+import com.example.myschedule.ui.MainActivity
 import com.example.myschedule.viewmodel.MainViewModel
 import java.time.LocalDate
 import java.time.YearMonth

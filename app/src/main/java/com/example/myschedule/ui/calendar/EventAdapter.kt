@@ -1,8 +1,9 @@
-package com.example.myschedule.ui.main
+package com.example.myschedule.ui.calendar
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myschedule.R
 import com.example.myschedule.data.entity.CalendarEvent
 import com.example.myschedule.databinding.EventItemLayoutBinding
 import java.time.Instant
@@ -52,7 +53,7 @@ class EventAdapter : RecyclerView.Adapter<EventAdapter.EventViewHolder>() {
                 binding.vEventColor.setBackgroundColor(color)
             } else {
                 binding.vEventColor.setBackgroundResource(
-                    com.example.myschedule.R.color.selected_day_background
+                    R.color.selected_day_background
                 )
             }
         }
