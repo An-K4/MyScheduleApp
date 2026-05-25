@@ -21,6 +21,15 @@
             android:layout_centerVertical="true"
             android:contentDescription="Quay lại" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="Chi tiết sự kiện"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_toEndOf="@id/btnBack"/>
+
         <ImageButton
             android:id="@+id/btnEdit"
             android:layout_width="wrap_content"

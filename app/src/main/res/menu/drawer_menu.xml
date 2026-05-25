@@ -4,13 +4,13 @@
     <item android:title="Chế độ xem">
         <menu>
             <item
-                android:id="@+id/nav_month"
-                android:icon="@drawable/ic_month"
-                android:title="Tháng" />
-            <item
                 android:id="@+id/nav_day"
                 android:icon="@drawable/ic_day"
                 android:title="Ngày" />
+            <item
+                android:id="@+id/nav_month"
+                android:icon="@drawable/ic_month"
+                android:title="Tháng" />
             <item
                 android:id="@+id/nav_year"
                 android:icon="@drawable/ic_year"
