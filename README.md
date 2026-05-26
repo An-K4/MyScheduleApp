@@ -1,50 +1,64 @@
-# My Schedule - Ứng dụng Lịch Android từ file ICS
+# My Schedule — Ứng dụng Lịch Android từ file ICS
 
-My Schedule là một ứng dụng lịch dành cho Android, cho phép người dùng nhập và quản lý nhiều nguồn lịch từ các file iCalendar (`.ics`), đồng thời tạo và quản lý sự kiện cá nhân trực tiếp trên ứng dụng. Ứng dụng được xây dựng với mục tiêu giúp người dùng xem thông tin lịch học, lịch làm việc qua nhiều chế độ xem khác nhau một cách trực quan.
+My Schedule là ứng dụng lịch cá nhân dành cho Android, cho phép nhập và quản lý nhiều nguồn lịch từ file iCalendar (`.ics`), đồng thời tạo và quản lý sự kiện cá nhân trực tiếp trên ứng dụng. Ứng dụng hỗ trợ bốn chế độ xem lịch, âm lịch Việt Nam, thông báo tùy chỉnh và chuyển đổi dark/light mode.
 
-Đây là phiên bản **3.0** của ứng dụng.
+Đây là phiên bản **3.1** của ứng dụng.
+
+---
 
 ## 📸 Ảnh chụp màn hình
 
-*(Cập nhật sau)*
+<p>
+  <img src="https://github.com/user-attachments/assets/322061a9-bc69-433c-af2e-3be5c75f21c8" width="24%"/>
+  <img src="https://github.com/user-attachments/assets/8723f269-49ad-408f-88f0-3545805d861a" width="24%"/>
+  <img src="https://github.com/user-attachments/assets/d044fe73-c995-45d6-bc43-361b46ed671e" width="24%"/>
+  <img src="https://github.com/user-attachments/assets/4ead6c65-a7db-4be8-9686-034fe6a98598" width="24%"/>
+</p>
+
+---
 
 ## ✨ Tính năng chính
 
 ### Chế độ xem Lịch
-- **Xem Tháng:** Giao diện lịch tháng rõ ràng, cuộn qua lại giữa các tháng. Mỗi ô ngày hiển thị ngày dương lịch, ngày âm lịch nhỏ phía dưới, và chấm màu sự kiện theo nguồn.
-- **Xem Ngày:** Header điều hướng ◀ ▶ chuyển ngày trước/sau, hiển thị ngày âm lịch. Danh sách sự kiện trong ngày với thanh màu dọc phân biệt nguồn lịch.
-- **Xem Năm:** Grid 12 mini calendar, highlight tháng hiện tại và ngày hôm nay. Click tháng → chuyển sang Month view của tháng đó.
-- **Lịch biểu (Agenda):** HorizontalRecyclerView chọn năm, danh sách sự kiện nhóm theo ngày. Hỗ trợ sự kiện nhiều ngày với thời gian hiển thị điều chỉnh đúng. Auto scroll đến ngày hôm nay khi vào.
-- **Chuyển đổi mượt** qua Navigation Drawer, chia sẻ state `selectedDate` giữa tất cả chế độ xem.
+Chuyển đổi qua **Navigation Drawer**, chia sẻ state `selectedDate` và `currentMonth` giữa tất cả chế độ xem qua `MainViewModel`.
+
+- **Xem Ngày** — Header điều hướng ◀ ▶ chuyển ngày, hiển thị ngày âm lịch. Danh sách sự kiện trong ngày với thanh màu dọc theo nguồn.
+- **Xem Tháng** — Lịch tháng cuộn được, mỗi ô ngày hiển thị ngày dương lịch, ngày âm lịch nhỏ phía dưới và chấm màu phân biệt nguồn lịch. Sự kiện nhiều ngày hiển thị chấm trên tất cả ngày trung gian.
+- **Xem Năm** — Grid 3×4 gồm 12 mini calendar. Highlight tháng hiện tại, highlight ngày hôm nay, chấm sự kiện trên từng ô. Click tháng → chuyển sang Month view.
+- **Lịch biểu (Agenda)** — HorizontalRecyclerView chọn năm (±10 năm), danh sách sự kiện nhóm theo ngày. Hỗ trợ sự kiện nhiều ngày với thời gian hiển thị điều chỉnh đúng. Auto scroll đến hôm nay khi vào.
 
 ### Sự kiện Cá nhân
-- **Thêm sự kiện tay:** Form đầy đủ — tên, ngày giờ bắt đầu/kết thúc, toggle cả ngày, địa điểm, mô tả, thông báo. Validate đầu vào trước khi lưu.
-- **Xem chi tiết:** Hiển thị đầy đủ thông tin sự kiện kèm tên nguồn lịch.
-- **Sửa sự kiện:** Chuyển sang edit mode bằng icon ✏️, sửa tất cả các trường, lưu bằng icon ✓. Alarm tự động reschedule.
-- **Xóa sự kiện:** Dialog xác nhận trước khi xóa. Alarm tự động hủy.
+- **Thêm sự kiện** — Form đầy đủ: tên, ngày giờ bắt đầu/kết thúc, toggle cả ngày, địa điểm, mô tả, thông báo tùy chỉnh. Validate trước khi lưu.
+- **Xem chi tiết** — Hiển thị đầy đủ thông tin kèm tên nguồn lịch.
+- **Sửa sự kiện** — Nhấn icon ✏️ → edit mode, nhấn ✓ → lưu. Alarm tự reschedule.
+- **Xóa sự kiện** — Dialog xác nhận. Alarm tự hủy.
 
 ### Quản lý Nguồn Lịch
-- **Nguồn mặc định "Lịch của tôi":** Tự động tạo khi khởi động, chứa các sự kiện tạo tay. Không thể xóa.
-- **Đa nguồn lịch:** Nhập nhiều file `.ics` cùng lúc, mỗi nguồn được gán màu tự động từ palette 8 màu.
-- **Filter theo nguồn:** Bật/tắt từng nguồn bằng checkbox — lịch cập nhật realtime.
-- **Xóa nguồn:** Xóa nguồn kèm toàn bộ sự kiện và alarm liên quan.
-- **Chống trùng lặp:** Phát hiện và thông báo nếu import cùng file `.ics` hai lần.
+- **Nguồn mặc định "Lịch của tôi"** — Tự động seed khi khởi động lần đầu, chứa sự kiện tạo tay. Không thể xóa.
+- **Đa nguồn lịch** — Import nhiều file `.ics`, mỗi nguồn gán màu tự động từ palette 8 màu.
+- **Filter** — Bật/tắt từng nguồn bằng checkbox, lịch cập nhật realtime.
+- **Xóa nguồn** — Xóa kèm toàn bộ sự kiện và alarm liên quan.
+- **Chống trùng lặp** — Phát hiện và báo nếu import cùng file hai lần (so sánh URI).
+
+### Thông báo Tùy Chỉnh
+- Nhập số + chọn đơn vị (Phút / Giờ / Ngày / Tuần) hoặc tắt hẳn.
+- Import ICS: parse `VALARM TRIGGER` lấy thời gian nhắc, mặc định 30 phút nếu không có VALARM.
+- Nội dung notification hiển thị đúng "X phút/giờ/ngày trước".
+- Nhấn notification → mở thẳng `EventDetailActivity` của sự kiện đó.
 
 ### Âm Lịch
-- **Hiển thị ngày âm** trong ô ngày tháng (Month view) dưới dạng `"15/4"` nhỏ mờ.
-- **Hiển thị ngày âm** trong header Day view dưới dạng `"(15/4 âl)"`.
-- Thuật toán chuyển đổi dương → âm lịch Việt Nam chuẩn UTC+7, xử lý đúng tháng nhuận.
-
-### Thông báo Sự kiện
-- Tự động lên lịch thông báo theo `reminderMinutes` của từng sự kiện.
-- Import ICS: đọc `VALARM TRIGGER` để lấy thời gian nhắc, mặc định 30 phút nếu không có VALARM.
-- Sự kiện tạo tay: Spinner chọn 5p / 15p / 30p / 1h / 1 ngày / Tắt.
-- Dùng `AlarmManager.setExactAndAllowWhileIdle()` với fallback `set()` nếu thiếu permission.
+- Month view: hiển thị `"15/4"` nhỏ mờ dưới ngày dương.
+- Day view: hiển thị `"Ngày 15/4 âm lịch"` trong header.
+- Thuật toán chuyển đổi dương → âm lịch Việt Nam (Ho Ngoc Duc, 2004), múi giờ UTC+7.
 
 ### Giao diện & Tiện ích
-- **Navigation Drawer** với 4 chế độ xem: Tháng / Ngày / Năm / Lịch biểu.
-- **Dark / Light mode:** Nút chuyển đổi ngay trên toolbar, lưu lại lựa chọn qua SharedPreferences.
-- **Lưu trữ bền vững:** Toàn bộ dữ liệu trong Room Database (version 2).
+- **Navigation Drawer** — 4 chế độ xem + Nguồn lịch + switch Dark mode.
+- **Dark / Light mode** — Switch trong Drawer, lưu lại qua `SharedPreferences`.
+- **Nút Hôm nay** — Circle button hiển thị số ngày hôm nay, nhấn → về ngày hiện tại và scroll đúng tháng/năm trên mọi Fragment.
+- **Drawer highlight** — Item đang được chọn có background highlight.
+- **Tap notification → mở EventDetail** — `PendingIntent` với `eventId`, mở `EventDetailActivity` đúng sự kiện.
+
+---
 
 ## 🛠️ Công nghệ sử dụng
 
@@ -58,80 +72,103 @@ My Schedule là một ứng dụng lịch dành cho Android, cho phép người 
 | Async | Kotlin Coroutines + Flow |
 | Thông báo | `AlarmManager` + `BroadcastReceiver` + `NotificationManager` |
 | UI | Material Components for Android (Material3) |
-| Navigation | Single Activity + Navigation Drawer + Fragment |
+| Navigation | Single Activity + Navigation Drawer + Fragment (4 chế độ xem) + 2 Activity riêng |
+
+---
 
 ## 📁 Cấu trúc dự án
 
 ```
 app/src/main/java/com/example/myschedule/
 ├── data/
-│   ├── db/            ← Room DAOs + AppDatabase (v2)
-│   ├── entity/        ← CalendarSource, CalendarEvent (+reminderMinutes)
-│   └── repository/    ← CalendarRepository, ImportResult
+│   ├── db/
+│   │   ├── AppDatabase.kt             ← Room singleton (version 2)
+│   │   ├── CalendarSourceDao.kt       ← DAO nguồn lịch
+│   │   ├── CalendarEventDao.kt        ← DAO sự kiện
+│   │   └── EventTimeWithSource.kt     ← Projection (startTime, endTime, sourceId)
+│   ├── entity/
+│   │   ├── CalendarSource.kt          ← Entity nguồn lịch
+│   │   └── CalendarEvent.kt           ← Entity sự kiện (+reminderMinutes)
+│   └── repository/
+│       ├── CalendarRepository.kt      ← Business logic chính
+│       └── ImportResult.kt            ← Sealed class kết quả import
+│
 ├── ui/
-│   ├── main/          ← MainActivity (Single Activity + Drawer), EventAdapter
-│   ├── month/         ← MonthFragment
-│   ├── day/           ← DayFragment
-│   ├── year/          ← YearFragment, MiniMonthAdapter
-│   ├── agenda/        ← AgendaFragment, AgendaAdapter, AgendaItem, YearAdapter
-│   ├── event/         ← AddEditEventFragment, EventDetailFragment
-│   └── source/        ← SourceManagerActivity, SourceAdapter
-├── viewmodel/         ← MainViewModel, SourceManagerViewModel
-├── receiver/          ← NotificationReceiver, NotificationScheduler
-└── util/              ← LunarCalendarUtil
+│   ├── BaseActivity.kt                ← Abstract class xử lý theme chung
+│   ├── MainActivity.kt                ← Single Activity container + Drawer
+│   ├── calendar/
+│   │   ├── MonthFragment.kt           ← Chế độ xem tháng
+│   │   ├── DayFragment.kt             ← Chế độ xem ngày
+│   │   ├── YearFragment.kt            ← Chế độ xem năm (12 mini cal)
+│   │   ├── MiniMonthAdapter.kt        ← Adapter cho YearFragment
+│   │   └── EventAdapter.kt            ← Adapter sự kiện (dùng chung)
+│   ├── event/
+│   │   ├── AddEventActivity.kt        ← Activity thêm sự kiện mới
+│   │   └── EventDetailActivity.kt     ← Activity xem/sửa/xóa sự kiện
+│   ├── agenda/
+│   │   ├── AgendaFragment.kt          ← Chế độ xem lịch biểu
+│   │   ├── AgendaAdapter.kt           ← Multiple ViewType: header + event
+│   │   ├── AgendaItem.kt              ← Data class item agenda
+│   │   └── YearAdapter.kt             ← Adapter year selector
+│   └── source/
+│       ├── SourceManagerActivity.kt   ← Quản lý nguồn lịch
+│       └── SourceAdapter.kt           ← Adapter nguồn (ẩn xóa nguồn mặc định)
+│
+├── viewmodel/
+│   ├── MainViewModel.kt               ← State dùng chung (4 Fragment + MainActivity)
+│   ├── SourceManagerViewModel.kt      ← State SourceManagerActivity
+│   ├── AddEventViewModel.kt           ← State AddEventActivity
+│   └── EventDetailViewModel.kt        ← State EventDetailActivity
+│
+├── receiver/
+│   ├── NotificationReceiver.kt        ← BroadcastReceiver: nhận alarm → show notification
+│   └── NotificationScheduler.kt       ← Wrapper AlarmManager: set/cancel alarm
+│
+└── util/
+    └── LunarCalendarUtil.kt           ← Chuyển đổi dương → âm lịch Việt Nam
 ```
+
+---
 
 ## 🚀 Hướng dẫn Build
 
 1. Clone repository:
-    ```bash
-    git clone https://github.com/An-K4/MyScheduleApp.git
-    cd myscheduleapp
-    ```
-2. Mở dự án bằng Android Studio (Hedgehog 2023.1+).
+   ```bash
+   git clone https://github.com/An-K4/MyScheduleApp.git
+   cd myscheduleapp
+   ```
+2. Mở dự án bằng **Android Studio** (Hedgehog 2023.1+).
 3. Đợi Gradle đồng bộ hóa dependencies.
-4. **Xóa app cũ trước khi cài** nếu đang có v2.0.0 (DB version thay đổi từ 1 → 2).
+4. **Xóa app cũ trước khi cài** nếu đang có phiên bản < v3.0 (DB version thay đổi, dùng `fallbackToDestructiveMigration`).
 5. Build và chạy trên máy ảo hoặc thiết bị thật (API 26+).
 
-## 📋 Việc cần làm tiếp theo (v3.1)
-
-Sắp xếp theo mức độ ưu tiên:
-
-### 🔴 Cao
-- **Fix Fragment backstack** — Các Fragment đang ghi đè nhau khi chuyển qua Drawer, backstack tích lũy không kiểm soát được
-- **Fix render chấm multi-day** — Sự kiện nhiều ngày chỉ hiện chấm ở ngày bắt đầu, cần expand `startTime → endTime` để render đúng tất cả ngày
-
-### 🟡 Trung bình
-- **Fix "Lịch của tôi" không hiện trong Source Manager** — `ensureDefaultSource()` chưa được gọi từ `SourceManagerViewModel`
-- **Fix nguồn lịch sai với sự kiện tạo tay** — Resolve sai `sourceId` trong `EventDetailFragment`
-- **Nút quay về ngày hôm nay** — Thêm nút "Hôm nay" trên toolbar hoặc trong Drawer
-- **Fix nội dung notification** — Đang hiển thị hardcode "30 phút", cần truyền `reminderMinutes` vào `NotificationReceiver` qua Intent extra
-
-### 🟠 Quan trọng nhưng tốn công
-- **Refactor toolbar** — `tvMonthYear` và icon đang đè nhau trên màn hình nhỏ, cần bỏ năm hoặc chuyển icon vào Drawer
-- **Thông báo linh hoạt** — Thay Spinner cố định bằng EditText + RadioGroup (phút/giờ/ngày/tuần) giống Calendly
-
-### 🟢 Thấp / Tùy chọn
-- **Chia Activity** — Tách EventDetail và AddEditEvent thành Activity riêng
-- **Polish padding/margin** — Rà soát toàn bộ layout
-- **Tap notification → mở EventDetail** — Thêm PendingIntent với `eventId` trong NotificationReceiver
-- **Agenda auto-scroll** — Xem xét thêm nút "Về hôm nay" riêng trong AgendaFragment
-- **Import trùng → hỏi user** — Dialog thay Toast, cho phép import đè (rủi ro cao)
+---
 
 ## 🔄 Lịch sử phiên bản
 
 | Phiên bản | Nội dung |
 |-----------|----------|
-| v1.0.0 | MVP ban đầu — import ICS, xem tháng cơ bản, thông báo |
-| v2.0.0 | Đa nguồn lịch, chấm màu theo nguồn, dark/light mode, SourceManager |
-| v3.0.0 | Single Activity + Drawer, 4 chế độ xem, CRUD sự kiện, âm lịch, parse VALARM |
+| v1.0.0 | MVP ban đầu — import ICS, xem tháng cơ bản, thông báo cố định 30 phút |
+| v2.0.0 | Đa nguồn lịch, chấm màu theo nguồn, dark/light mode, SourceManagerActivity |
+| v3.0.0 | Single Activity + Drawer, 4 chế độ xem (Month/Day/Year/Agenda), CRUD sự kiện tay, âm lịch, parse VALARM |
+| v3.1.0 | Fix backstack, fix chấm multi-day, tách EventDetail/AddEvent thành Activity, BaseActivity, tap notification → EventDetail, nút Hôm nay, thông báo linh hoạt (số + đơn vị), toolbar gọn, drawer highlight, fix AgendaFragment multiple observer |
+
+---
+
+## 📋 Hướng phát triển tương lai
+
+- **Sync Google Calendar** — tích hợp CalDAV hoặc Google Calendar API
+- **Widget màn hình chính** — hiển thị sự kiện hôm nay ngay ngoài home screen
+- **Tháng nhuận âm lịch** — hiển thị ký hiệu "(Nhuận)" cho tháng nhuận
+
+---
 
 ## 🤝 Đóng Góp
 
 1. **Fork** repository này.
-2. Tạo nhánh mới (`git checkout -b feature/TinhNangMoi`).
-3. Commit thay đổi (`git commit -m 'Thêm tính năng X'`).
-4. Push lên nhánh (`git push origin feature/TinhNangMoi`).
+2. Tạo nhánh mới: `git checkout -b feature/TinhNangMoi`
+3. Commit thay đổi: `git commit -m 'feat: thêm tính năng X'`
+4. Push: `git push origin feature/TinhNangMoi`
 5. Tạo **Pull Request**.
 
 ## ⭐️ Ủng hộ
@@ -139,4 +176,5 @@ Sắp xếp theo mức độ ưu tiên:
 Nếu thấy dự án hữu ích, hãy để lại một **Star** ⭐️!
 
 ---
-Developed by **An_K4**.
+
+*Developed by **An_K4**.*
