@@ -30,12 +30,10 @@
             tools:text="Tháng 1"/>
 
         <!-- Grid ngày (7 cột x 6 hàng) -->
-        <GridLayout
-            android:id="@+id/gridDays"
+        <com.example.myschedule.ui.calendar.MiniMonthView
+            android:id="@+id/miniMonthView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:columnCount="7"
-            android:rowCount="6"/>
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 
