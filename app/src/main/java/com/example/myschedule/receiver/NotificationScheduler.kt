@@ -60,11 +60,13 @@ object NotificationScheduler {
 
     // ── Helper dùng chung ─────────────────────────────────────────────────────
     private fun buildPendingIntent(context: Context, event: CalendarEvent): PendingIntent {
+        val notificationId = event.uid.hashCode() and 0x7FFFFFFF
+
         val intent = Intent(context, NotificationReceiver::class.java).apply {
             putExtra(NotificationReceiver.EXTRA_EVENT_ID, event.id)
             putExtra(NotificationReceiver.EXTRA_EVENT_TITLE, event.title)
             putExtra(NotificationReceiver.EXTRA_REMINDER_MINUTES, event.reminderMinutes ?: 30L)
-            putExtra(NotificationReceiver.EXTRA_NOTIFICATION_ID, event.uid.hashCode())
+            putExtra(NotificationReceiver.EXTRA_NOTIFICATION_ID, notificationId)
         }
         return PendingIntent.getBroadcast(
             context,

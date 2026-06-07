@@ -37,7 +37,7 @@ class NotificationReceiver : BroadcastReceiver() {
         // ── PendingIntent mở EventDetailActivity khi tap ──────────────────────
         val tapIntent = Intent(context, EventDetailActivity::class.java).apply {
             putExtra(EventDetailActivity.EXTRA_EVENT_ID, eventId)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         val tapPendingIntent = PendingIntent.getActivity(
             context,

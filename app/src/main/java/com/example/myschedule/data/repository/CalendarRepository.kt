@@ -70,10 +70,11 @@ class CalendarRepository(private val context: Context) {
             val savedSource = source.copy(id = sourceId)
 
             val events = parseIcsToEvents(uri, sourceId)
-            eventDao.insertAll(events)
-
-            // Lên lịch thông báo cho tất cả sự kiện mới import
-            NotificationScheduler.scheduleAll(context, events)
+            val insertedIds = eventDao.insertAll(events)
+            val eventsWithId = events.mapIndexed { i, event ->
+                event.copy(id = insertedIds[i].toInt())
+            }
+            NotificationScheduler.scheduleAll(context, eventsWithId)
 
             ImportResult.Success(savedSource, events.size)
         } catch (e: Exception) {

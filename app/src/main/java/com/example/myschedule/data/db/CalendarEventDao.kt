@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 interface CalendarEventDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(events: List<CalendarEvent>)
+    suspend fun insertAll(events: List<CalendarEvent>): List<Long>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertEvent(event: CalendarEvent): Long
