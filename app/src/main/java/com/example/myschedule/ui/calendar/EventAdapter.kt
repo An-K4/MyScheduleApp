@@ -25,8 +25,8 @@ class EventAdapter : RecyclerView.Adapter<EventAdapter.EventViewHolder>() {
 
         init {
             binding.root.setOnClickListener {
-                if (adapterPosition != RecyclerView.NO_POSITION) {
-                    onItemClick?.invoke(events[adapterPosition])
+                if (bindingAdapterPosition != RecyclerView.NO_POSITION) {
+                    onItemClick?.invoke(events[bindingAdapterPosition])
                 }
             }
         }
@@ -47,7 +47,7 @@ class EventAdapter : RecyclerView.Adapter<EventAdapter.EventViewHolder>() {
                 timeStr
             }
 
-            // 6.2 — Thanh màu dọc lấy màu từ source, fallback về màu mặc định nếu không tìm thấy
+            // Thanh màu dọc lấy màu từ source, fallback về màu mặc định nếu không tìm thấy
             val color = sourceColors[event.sourceId]
             if (color != null) {
                 binding.vEventColor.setBackgroundColor(color)

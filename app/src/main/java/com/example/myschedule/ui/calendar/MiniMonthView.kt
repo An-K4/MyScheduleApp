@@ -18,9 +18,10 @@ import androidx.core.graphics.toColorInt
  * Thay thế GridLayout + TextView động → giảm View count từ ~35 xuống 1.
  *
  * Tuần bắt đầu từ Thứ 2 (Mon).
- * Màu text dùng colorOnBackground từ Material Theme (tự động hỗ trợ dark mode).
- * Chiều cao tự tính theo số hàng thực tế của tháng (giống renderMiniCalendar cũ).
+ * Màu text dùng colorOnBackground từ Material Theme.
+ * Chiều cao tự tính theo số hàng thực tế của tháng.
  */
+
 class MiniMonthView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -60,7 +61,7 @@ class MiniMonthView @JvmOverloads constructor(
     // ── Public API ───────────────────────────────────────────────────────────
 
     /**
-     * Gọi từ ViewHolder.bind() thay cho renderMiniCalendar().
+     * Gọi từ ViewHolder.bind().
      * Không tạo View mới — chỉ cập nhật data và invalidate.
      */
     fun bind(
@@ -166,7 +167,6 @@ class MiniMonthView @JvmOverloads constructor(
 
     /**
      * Số hàng thực tế của tháng (4, 5 hoặc 6).
-     * Giống logic cũ trong renderMiniCalendar.
      */
     private fun computeRowCount(month: YearMonth): Int {
         val offset = getFirstDayOffset(month)

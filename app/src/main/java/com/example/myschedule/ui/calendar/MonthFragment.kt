@@ -117,8 +117,7 @@ class MonthFragment : Fragment() {
         lateinit var day: CalendarDay
         init {
             view.setOnClickListener {
-                if (day.position == DayPosition.MonthDate && day.date != selectedDate)
-                    viewModel.selectDate(day.date)
+                if (day.position == DayPosition.MonthDate && day.date != selectedDate) viewModel.selectDate(day.date)
             }
         }
     }
@@ -193,7 +192,15 @@ class MonthFragment : Fragment() {
             viewModel.setCurrentMonth(month.yearMonth)
             val monthName = month.yearMonth.month
                 .getDisplayName(TextStyle.FULL, Locale("vi"))
-            val title = monthName.replaceFirstChar { it.titlecase(Locale("vi")) }
+                .replaceFirstChar { it.titlecase(Locale("vi")) }
+            val currentYear = month.yearMonth.year
+            val isCurrentYear = currentYear == LocalDate.now().year
+
+            val title = if (isCurrentYear) {
+                monthName
+            } else {
+                "$monthName $currentYear"
+            }
             (activity as? MainActivity)?.updateMonthYearTitle(title)
         }
 
@@ -209,8 +216,6 @@ class MonthFragment : Fragment() {
                         }
                 }
             }
-
-        if (viewModel.selectedDate.value == null) viewModel.selectDate(LocalDate.now())
     }
 
     private fun renderEventDots(container: LinearLayout, date: LocalDate) {
