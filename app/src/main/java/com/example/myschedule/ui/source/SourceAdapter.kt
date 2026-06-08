@@ -18,6 +18,7 @@ class SourceAdapter(
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<CalendarSource>() {
             override fun areItemsTheSame(old: CalendarSource, new: CalendarSource) =
                 old.id == new.id
+
             override fun areContentsTheSame(old: CalendarSource, new: CalendarSource) =
                 old == new
         }

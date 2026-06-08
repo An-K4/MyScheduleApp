@@ -2,6 +2,7 @@ package com.example.myschedule.ui.source
 
 import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -109,7 +110,7 @@ class SourceManagerActivity : BaseActivity() {
         var name = "Lịch mới"
         contentResolver.query(uri, null, null, null, null)?.use { cursor ->
             if (cursor.moveToFirst()) {
-                val idx = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                val idx = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
                 if (idx != -1) name = cursor.getString(idx).removeSuffix(".ics")
             }
         }

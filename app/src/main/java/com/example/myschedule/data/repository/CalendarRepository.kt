@@ -10,10 +10,15 @@ import com.example.myschedule.receiver.NotificationScheduler
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import net.fortuna.ical4j.data.CalendarBuilder
+import net.fortuna.ical4j.model.component.VAlarm
 import net.fortuna.ical4j.model.component.VEvent
+import net.fortuna.ical4j.model.property.Description
 import net.fortuna.ical4j.model.property.DtEnd
 import net.fortuna.ical4j.model.property.DtStart
+import net.fortuna.ical4j.model.property.Location
+import net.fortuna.ical4j.model.property.Trigger
 import net.fortuna.ical4j.model.property.Uid
+import java.time.Duration.from
 import java.time.LocalDate
 import java.time.ZoneId
 
@@ -92,22 +97,21 @@ class CalendarRepository(private val context: Context) {
                     val dtEnd = component.getProperty<DtEnd>("DTEND")
                     val uid = component.getProperty<Uid>("UID")?.value ?: component.toString()
 
-                    // ── MỚI: Parse VALARM ──────────────────────────────────────
+                    // ── Parse VALARM ──────────────────────────────────────
                     val reminderMinutes: Long? = try {
-                        val valarm = component.getComponents<net.fortuna.ical4j.model.component.VAlarm>("VALARM")
+                        val valarm = component.getComponents<VAlarm>("VALARM")
                             .firstOrNull()
-                        val trigger = valarm?.getProperty<net.fortuna.ical4j.model.property.Trigger>("TRIGGER")
-                        val duration = trigger?.duration  // net.fortuna.ical4j.model.TemporalAmountAdapter
+                        val trigger = valarm?.getProperty<Trigger>("TRIGGER")
+                        val duration = trigger?.duration
                         // TRIGGER thường là âm (trước sự kiện), ví dụ -PT30M
-                        // Ta lấy giá trị tuyệt đối tính theo phút
+                        // Lấy giá trị tuyệt đối tính theo phút
                         duration?.let {
-                            val totalSeconds = java.time.Duration.from(it).abs().seconds
+                            val totalSeconds = from(it).abs().seconds
                             if (totalSeconds > 0) totalSeconds / 60 else 30L
-                        } ?: 30L   // Không có VALARM → mặc định 30 phút
+                        } ?: 30L
                     } catch (e: Exception) {
-                        30L        // Parse lỗi → fallback 30 phút
+                        30L
                     }
-                    // ───────────────────────────────────────────────────────────
 
                     events.add(
                         CalendarEvent(
@@ -116,8 +120,8 @@ class CalendarRepository(private val context: Context) {
                             title = component.summary?.value ?: "Sự kiện",
                             startTime = dtStart.date.time,
                             endTime = dtEnd?.date?.time ?: dtStart.date.time,
-                            location = component.getProperty<net.fortuna.ical4j.model.property.Location>("LOCATION")?.value,
-                            description = component.getProperty<net.fortuna.ical4j.model.property.Description>("DESCRIPTION")?.value,
+                            location = component.getProperty<Location>("LOCATION")?.value,
+                            description = component.getProperty<Description>("DESCRIPTION")?.value,
                             reminderMinutes = reminderMinutes
                         )
                     )
@@ -147,8 +151,7 @@ class CalendarRepository(private val context: Context) {
             }
     }
 
-    fun getEnabledEventTimes(): Flow<List<EventTimeWithSource>> =
-        eventDao.getEnabledEventTimes()
+    fun getEnabledEventTimes(): Flow<List<EventTimeWithSource>> = eventDao.getEnabledEventTimes()
 
     suspend fun ensureDefaultSource() {
         val existing = sourceDao.getById(1)
@@ -185,8 +188,7 @@ class CalendarRepository(private val context: Context) {
         eventDao.deleteEvent(event)
     }
 
-    suspend fun getEventById(eventId: Int): CalendarEvent? =
-        eventDao.getEventById(eventId)
+    suspend fun getEventById(eventId: Int): CalendarEvent? = eventDao.getEventById(eventId)
 
     suspend fun getSourceById(id: Int): CalendarSource? = sourceDao.getById(id)
 

@@ -76,7 +76,5 @@ class EventDetailViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 
-    fun clearError() {
-        _errorMessage.value = null
-    }
+    fun clearError() { _errorMessage.value = null }
 }

@@ -105,14 +105,17 @@ class EventDetailActivity : BaseActivity() {
                     binding.edNotificationDuration.setText((reminderMinutes / (60 * 24 * 7)).toString())
                     binding.rgReminderUnit.check(R.id.rbWeek)
                 }
+
                 reminderMinutes % (60 * 24) == 0L -> {
                     binding.edNotificationDuration.setText((reminderMinutes / (60 * 24)).toString())
                     binding.rgReminderUnit.check(R.id.rbDay)
                 }
+
                 reminderMinutes % 60 == 0L -> {
                     binding.edNotificationDuration.setText((reminderMinutes / 60).toString())
                     binding.rgReminderUnit.check(R.id.rbHour)
                 }
+
                 else -> {
                     binding.edNotificationDuration.setText(reminderMinutes.toString())
                     binding.rgReminderUnit.check(R.id.rbMinute)
@@ -191,7 +194,7 @@ class EventDetailActivity : BaseActivity() {
             it.isEnabled = enabled
         }
         binding.rgReminderUnit.isEnabled = enabled
-        binding.layoutNotification.alpha = alpha
+        binding.layoutNotification.alpha = alpha // Độ trong suốt
     }
 
     private fun saveEdits() {

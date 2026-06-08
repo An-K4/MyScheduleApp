@@ -113,7 +113,5 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun selectDate(date: LocalDate) {
-        _selectedDate.value = date
-    }
+    fun selectDate(date: LocalDate) { _selectedDate.value = date }
 }
