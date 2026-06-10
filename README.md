@@ -2,7 +2,7 @@
 
 My Schedule là ứng dụng lịch cá nhân dành cho Android, cho phép nhập và quản lý nhiều nguồn lịch từ file iCalendar (`.ics`), đồng thời tạo và quản lý sự kiện cá nhân trực tiếp trên ứng dụng. Ứng dụng hỗ trợ bốn chế độ xem lịch, âm lịch Việt Nam, thông báo tùy chỉnh và chuyển đổi dark/light mode.
 
-Đây là phiên bản **3.1** của ứng dụng.
+Đây là phiên bản **3.2** của ứng dụng.
 
 ---
 
@@ -22,9 +22,9 @@ My Schedule là ứng dụng lịch cá nhân dành cho Android, cho phép nhậ
 ### Chế độ xem Lịch
 Chuyển đổi qua **Navigation Drawer**, chia sẻ state `selectedDate` và `currentMonth` giữa tất cả chế độ xem qua `MainViewModel`.
 
-- **Xem Ngày** — Header điều hướng ◀ ▶ chuyển ngày, hiển thị ngày âm lịch. Danh sách sự kiện trong ngày với thanh màu dọc theo nguồn.
 - **Xem Tháng** — Lịch tháng cuộn được, mỗi ô ngày hiển thị ngày dương lịch, ngày âm lịch nhỏ phía dưới và chấm màu phân biệt nguồn lịch. Sự kiện nhiều ngày hiển thị chấm trên tất cả ngày trung gian.
-- **Xem Năm** — Grid 3×4 gồm 12 mini calendar. Highlight tháng hiện tại, highlight ngày hôm nay, chấm sự kiện trên từng ô. Click tháng → chuyển sang Month view.
+- **Xem Ngày** — Header điều hướng ◀ ▶ chuyển ngày, hiển thị ngày âm lịch. Danh sách sự kiện trong ngày với thanh màu dọc theo nguồn.
+- **Xem Năm** — Grid 3×4 gồm 12 mini calendar. Highlight tháng hiện tại, highlight ngày hôm nay, chấm sự kiện trên từng ô. Click tháng → chuyển sang Month view. Mỗi mini calendar vẽ bằng Custom Canvas View (~35% nhanh hơn so với GridLayout cũ).
 - **Lịch biểu (Agenda)** — HorizontalRecyclerView chọn năm (±10 năm), danh sách sự kiện nhóm theo ngày. Hỗ trợ sự kiện nhiều ngày với thời gian hiển thị điều chỉnh đúng. Auto scroll đến hôm nay khi vào.
 
 ### Sự kiện Cá nhân
@@ -56,7 +56,7 @@ Chuyển đổi qua **Navigation Drawer**, chia sẻ state `selectedDate` và `c
 - **Dark / Light mode** — Switch trong Drawer, lưu lại qua `SharedPreferences`.
 - **Nút Hôm nay** — Circle button hiển thị số ngày hôm nay, nhấn → về ngày hiện tại và scroll đúng tháng/năm trên mọi Fragment.
 - **Drawer highlight** — Item đang được chọn có background highlight.
-- **Tap notification → mở EventDetail** — `PendingIntent` với `eventId`, mở `EventDetailActivity` đúng sự kiện.
+- **Tap notification → mở EventDetail** — `PendingIntent` với `eventId` chính xác (kể cả sự kiện từ file ICS), mở `EventDetailActivity` đúng sự kiện.
 
 ---
 
@@ -101,6 +101,7 @@ app/src/main/java/com/example/myschedule/
 │   │   ├── DayFragment.kt             ← Chế độ xem ngày
 │   │   ├── YearFragment.kt            ← Chế độ xem năm (12 mini cal)
 │   │   ├── MiniMonthAdapter.kt        ← Adapter cho YearFragment
+│   │   ├── MiniMonthView.kt           ← Lịch mini month vẽ bằng Canvas cho YearFragment
 │   │   └── EventAdapter.kt            ← Adapter sự kiện (dùng chung)
 │   ├── event/
 │   │   ├── AddEventActivity.kt        ← Activity thêm sự kiện mới
@@ -152,11 +153,16 @@ app/src/main/java/com/example/myschedule/
 | v2.0.0 | Đa nguồn lịch, chấm màu theo nguồn, dark/light mode, SourceManagerActivity |
 | v3.0.0 | Single Activity + Drawer, 4 chế độ xem (Month/Day/Year/Agenda), CRUD sự kiện tay, âm lịch, parse VALARM |
 | v3.1.0 | Fix backstack, fix chấm multi-day, tách EventDetail/AddEvent thành Activity, BaseActivity, tap notification → EventDetail, nút Hôm nay, thông báo linh hoạt (số + đơn vị), toolbar gọn, drawer highlight, fix AgendaFragment multiple observer |
+| v3.2.0 | Fix tap notification sự kiện ICS (eventId=0), tối ưu Year View ~35% bằng Custom Canvas (`MiniMonthView`) thay GridLayout |
 
 ---
 
-## 📋 Hướng phát triển tương lai
+## 📋 Việc cần làm tiếp theo (tương lai)
 
+- **Custom Canvas MonthFragment** — thay `KizitonwoseCalendarView` bằng Custom View vẽ Canvas (tương tự `MiniMonthView`); hướng duy nhất giải quyết frame time ~46ms hiện tại (GPU-bound)
+- **Chia Activity hoàn toàn** — xem xét chuyển toàn bộ sang Navigation Component
+- **Polish padding/margin** — rà soát toàn bộ layout trên nhiều kích thước màn hình
+- **Agenda "Về hôm nay"** — thêm nút riêng trong AgendaFragment
 - **Sync Google Calendar** — tích hợp CalDAV hoặc Google Calendar API
 - **Widget màn hình chính** — hiển thị sự kiện hôm nay ngay ngoài home screen
 - **Tháng nhuận âm lịch** — hiển thị ký hiệu "(Nhuận)" cho tháng nhuận
