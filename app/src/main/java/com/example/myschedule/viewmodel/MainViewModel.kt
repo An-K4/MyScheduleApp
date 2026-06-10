@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.example.myschedule.data.repository.CalendarRepository
@@ -71,22 +72,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }.asLiveData()
 
 
-    val eventDates: LiveData<Set<LocalDate>> =
-        repository.getEnabledEventTimes()
-            .map { items ->
-                val zone = ZoneId.systemDefault()
-                val dates = mutableSetOf<LocalDate>()
-                items.forEach { item ->
-                    val startDate = Instant.ofEpochMilli(item.startTime).atZone(zone).toLocalDate()
-                    val endDate = Instant.ofEpochMilli(item.endTime).atZone(zone).toLocalDate()
-                    var cursor = startDate
-                    while (!cursor.isAfter(endDate)) {
-                        dates.add(cursor)
-                        cursor = cursor.plusDays(1)
-                    }
-                }
-                dates
-            }.asLiveData()
+    val eventDates: LiveData<Set<LocalDate>> = eventDateColors.map { it.keys }
 
     val sourceColors: LiveData<Map<Int, Int>> =
         repository.getAllSources()

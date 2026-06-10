@@ -57,7 +57,7 @@ object LunarCalendarUtil {
         }
 
         if (lunarMonth > 12) lunarMonth -= 12
-        if (lunarMonth >= 11 && diff < 4) lunarYear - 1
+        if (lunarMonth >= 11 && diff < 4) lunarYear - 1 // Dòng này có thể gây lỗi nếu sau này dùng LunarYear
 
         return intArrayOf(lunarDay, lunarMonth, lunarYear, if (lunarLeap) 1 else 0)
     }
