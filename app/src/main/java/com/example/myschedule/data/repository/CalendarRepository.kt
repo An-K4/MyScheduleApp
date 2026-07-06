@@ -169,9 +169,9 @@ class CalendarRepository(private val context: Context) {
     }
 
     suspend fun addEvent(event: CalendarEvent) {
-        eventDao.insertEvent(event)
+        val eventId = eventDao.insertEvent(event)
         if (event.reminderMinutes != null) {
-            NotificationScheduler.scheduleOne(context, event)
+            NotificationScheduler.scheduleOne(context, event.copy(id = eventId.toInt()))
         }
     }
 
