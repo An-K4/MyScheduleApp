@@ -147,13 +147,13 @@ app/src/main/java/com/example/myschedule/
 
 ## 🔄 Lịch sử phiên bản
 
-| Phiên bản | Nội dung |
-|-----------|----------|
-| v1.0.0 | MVP ban đầu — import ICS, xem tháng cơ bản, thông báo cố định 30 phút |
-| v2.0.0 | Đa nguồn lịch, chấm màu theo nguồn, dark/light mode, SourceManagerActivity |
-| v3.0.0 | Single Activity + Drawer, 4 chế độ xem (Month/Day/Year/Agenda), CRUD sự kiện tay, âm lịch, parse VALARM |
+| Phiên bản | Nội dung                                                                                                                                                                                                                                       |
+|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| v1.0.0 | MVP ban đầu — import ICS, xem tháng cơ bản, thông báo cố định 30 phút                                                                                                                                                                          |
+| v2.0.0 | Đa nguồn lịch, chấm màu theo nguồn, dark/light mode, SourceManagerActivity                                                                                                                                                                     |
+| v3.0.0 | Single Activity + Drawer, 4 chế độ xem (Month/Day/Year/Agenda), CRUD sự kiện tay, âm lịch, parse VALARM                                                                                                                                        |
 | v3.1.0 | Fix backstack, fix chấm multi-day, tách EventDetail/AddEvent thành Activity, BaseActivity, tap notification → EventDetail, nút Hôm nay, thông báo linh hoạt (số + đơn vị), toolbar gọn, drawer highlight, fix AgendaFragment multiple observer |
-| v3.2.0 | Fix tap notification sự kiện ICS (eventId=0), tối ưu Year View ~35% bằng Custom Canvas (`MiniMonthView`) thay GridLayout |
+| v3.2.0 | Fix tap notification sự kiện (eventId=0), tối ưu Year View ~35% bằng Custom Canvas (`MiniMonthView`) thay GridLayout, fix auto-scroll không hoạt động nếu hôm nay không có sự kiện                                                             |
 
 ---
 
