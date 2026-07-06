@@ -165,15 +165,21 @@ class AgendaFragment : Fragment() {
 
         agendaAdapter.submitData(agendaItems, colors)
 
-        // Auto scroll đến hôm nay (chỉ scroll 1 lần)
+        // Auto scroll đến ngày gần nhất sắp có sự kiện (chỉ scroll 1 lần)
         if (agendaItems.isNotEmpty()) {
-            val todayItem = AgendaItem(AgendaItem.TYPE_DATE_HEADER, LocalDate.now())
-            val todayPosition = agendaItems.indexOf(todayItem)
-            if (todayPosition >= 0) {
-                binding.rvAgenda.post {
-                    (binding.rvAgenda.layoutManager as? LinearLayoutManager)
-                        ?.scrollToPositionWithOffset(todayPosition, 0)
-                }
+            val today = LocalDate.now()
+
+            val scrollPosition = agendaItems.indexOfFirst { item ->
+                item.type == AgendaItem.TYPE_DATE_HEADER &&
+                        item.date != null &&
+                        !item.date.isBefore(today) // hôm nay hoặc tương lai
+            }
+
+            val targetPosition = if (scrollPosition >= 0) scrollPosition else 0
+
+            binding.rvAgenda.post {
+                (binding.rvAgenda.layoutManager as? LinearLayoutManager)
+                    ?.scrollToPositionWithOffset(targetPosition, 0)
             }
         }
     }
